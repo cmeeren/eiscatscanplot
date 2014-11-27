@@ -8,7 +8,7 @@ Usage
 
 Copy `eiscatscanplot.py` to anywhere on your computer, open a terminal, go to the folder and run it using
 
-    `python eiscatscanplot.py`
+    python eiscatscanplot.py
     
 The script will auto-detect the latest 32m folder in the ESR data directory (this can be overridden when you run the script). You may change a few constants at the top of the script to adjust the script behaviour, but this is generally not needed.
 
