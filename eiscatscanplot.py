@@ -945,7 +945,7 @@ def scan_parse(dataFolder, savePath,
                         scanNoThis += 1
                         if not skipNextScan:
                             if RT or debugRT:
-                                print('Initializing scan #{} (scan start: {})'.format(scanNoThis, Time[0, 0]))
+                                print('\nInitializing scan #{} (scan start: {})'.format(scanNoThis, Time[0, 0]))
                             par2D_prev, par2D, err2D_prev, err2D = fix_dimensions(par2D_prev, par2D, err2D_prev, err2D)
                             scDir = currentScDir if currentScDir != 'stat' else currentScDirElev
                             thisScan = Scan(np.append(Time_prev, Time, axis=1), np.append(par1D_prev, par1D, axis=0), np.append(par2D_prev, par2D, axis=1), np.append(err2D_prev, err2D, axis=1), scDir, scanNoThis)
@@ -984,7 +984,7 @@ def scan_parse(dataFolder, savePath,
                             scanNoThis += 1
                             if not skipNextScan:
                                 if RT or debugRT:
-                                    print('Initializing scan #{} (scan start: {})'.format(scanNoThis, Time[0, 0]))
+                                    print('\nInitializing scan #{} (scan start: {})'.format(scanNoThis, Time[0, 0]))
                                 par2D_prev, par2D, err2D_prev, err2D = fix_dimensions(par2D_prev, par2D, err2D_prev, err2D)
                                 scDir = currentScDir if currentScDir != 'stat' else currentScDirElev
                                 thisScan = Scan(np.append(Time_prev, Time, axis=1), np.append(par1D_prev, par1D, axis=0), np.append(par2D_prev, par2D, axis=1), np.append(err2D_prev, err2D, axis=1), scDir, scanNoThis)
