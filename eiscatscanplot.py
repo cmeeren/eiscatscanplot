@@ -25,7 +25,7 @@ from mpl_toolkits.basemap import Basemap
 from time import sleep
 
 plt.ioff()  # performance impact is negligible, but when plotting many plots, this allows to plot and save without showing figure
-np.seterr(invalid='ignore')
+np.seterr(invalid='ignore', divide='ignore')
 plt.rcParams['font.size'] = 10
 
 #==============================================================================
