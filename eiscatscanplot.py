@@ -870,7 +870,7 @@ def scan_parse(dataFolder, savePath,
                     return
             elif len(newfiles) > 0:
                 if RT:
-                    print('{} new files discovered, analyzing...'.format(len(newfiles)))
+                    print('\n{} new files discovered, analyzing...'.format(len(newfiles)))
                 else:
                     print('Analyzing {} files...'.format(len(newfiles)))
 
