@@ -750,7 +750,7 @@ class Scan(object):
                 os.makedirs(saveTo)
             plt.savefig(os.path.join(saveTo, fn), dpi=figSize)
             if RT or debugRT:
-                print('Saved file ' + fn)
+                print('Saved file ' + os.path.join(saveTo, fn))
 #                logging.info('Saved file ' + fn)
         else:
             logging.warn('Scan #{}: No figure to save (perhaps because number of beams in scan is < 3)'.format(self.scNo))
