@@ -26,6 +26,7 @@ from time import sleep
 
 plt.ioff()  # performance impact is negligible, but when plotting many plots, this allows to plot and save without showing figure
 np.seterr(invalid='ignore')
+plt.rcParams['font.size'] = 10
 
 #==============================================================================
 # Some defaults
@@ -641,7 +642,7 @@ class Scan(object):
             self.mainTitle.set_text(mainTitleStr)
 
         if self.byline is None:
-            self.byline = self.fig.text(0.98, 0.98, 'Plotting software by Christer van der Meeren\ncmeeren@gmail.com', ha='right', va='top')
+            self.byline = self.fig.text(0.98, 0.98, 'Plotting software by Christer van der Meeren\ncmeeren@gmail.com\nCode available at https://github.com/cmeeren/eiscatscanplot', ha='right', va='top')
 
         # draw/update plot if realtime or only plotting a single scan
         if ((RT or debugRT) and not self.finished) or onlyDoScanNo is not None:
