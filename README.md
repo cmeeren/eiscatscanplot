@@ -19,9 +19,12 @@ Requirements
 
 * Python 2.7 (tested on Windows 7 64-bit and Ubuntu 14.10 64-bit)
 * numpy
+* scipy
 * matplotlib
 * basemap (from mpl_toolkits)
 
 On a normal Python 2.7 install on e.g. Ubuntu, these can be installed by running
 
-    sudo apt-get install python-numpy python-matplotlib python-mpltoolkits.basemap
+    sudo apt-get install python-numpy python-scipy python-matplotlib python-mpltoolkits.basemap
+
+Additionally, when doing offline plotting, you'll get a nice progress bar if you install `frogress` (optional).
