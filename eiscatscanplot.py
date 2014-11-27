@@ -1146,3 +1146,5 @@ if __name__ == "__main__":
                onlyDoScanNo=onlyDoScanNo, startAtScanNo=startAtScanNo, removeLargeErrs=removeLargeErrs, RT_replotAfterScan=RT_replotAfterScan,
                scanWidth=scanWidth, defScanSpeedPerIP=defScanSpeedPerIP, alts=alts, radarLoc=radarLoc, mapWidth=mapWidth, figSize=figSize,
                debugRT=debugRT)
+
+    raw_input('\nPlotting finished, press Enter to end script.')
