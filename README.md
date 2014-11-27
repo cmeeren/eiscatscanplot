@@ -8,6 +8,8 @@ Usage
 
 Copy `eiscatscanplot.py` to anywhere on your computer and run it with `python eiscatscanplot.py`. The script will auto-detect the latest 32m folder in the ESR data directory (this can be overridden when you run the script). You may change a few constants at the top of the script to adjust the script behaviour, but this is generally not needed.
 
+The script will update plots in realtime, and when it detects the end of a scan, it will save the figure and start a new plot.
+
 Requirements
 ------------
 
@@ -18,4 +20,4 @@ Requirements
 
 On a normal Python 2.7 install on e.g. Ubuntu, these can be installed by running
 
-    `sudo apt-get install python-numpy python-matplotlib python-mpltoolkits.basemap`.
+    sudo apt-get install python-numpy python-matplotlib python-mpltoolkits.basemap
