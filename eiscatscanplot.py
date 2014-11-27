@@ -1062,7 +1062,7 @@ if __name__ == "__main__":
             print('Folder {} doesn\'t exist, please try again.'.format(dataFolderOverride))
 
     # plot save path input
-    savePath = '~/Desktop/esr_scans_{}'.format(os.path.basename(os.path.normpath(dataFolder)))  # save plotted figures to this path.
+    savePath = '~/users/eiscatscanplot/esr_scans_{}'.format(os.path.basename(os.path.normpath(dataFolder)))  # save plotted figures to this path.
     savePathOverride = raw_input('2/4 Save plots in [default: {}] >> '.format(savePath))
     savePath = savePathOverride or savePath
     savePath = os.path.abspath(os.path.expanduser(savePath))
