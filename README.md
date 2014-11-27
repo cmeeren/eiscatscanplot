@@ -29,7 +29,7 @@ The script will update plots in realtime, and when it detects the end of a scan,
 More advanced usage
 -------------------
 
-You can use the script to parse scans and overlay them on arbitrary axes. Example (here the `eiscatsanplot` folder containing these scripts is assumed to be on your Python path):
+You can use the script to parse scans (by passing `savePath=None` and `doPlot=False` as arguments to `scan_parse()`) and overlay them on arbitrary map axes (using `Scan.plot_overlay()`). Here is an example (the `eiscatsanplot` folder containing these scripts is assumed to be on your Python path):
 
 ```python
 # change to a real data folder if you want to run this script
