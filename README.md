@@ -3,6 +3,8 @@ eiscatscanplot
 
 A python script for very easy realtime and offline plotting of EISCAT scans of all types (azimuth, elevation/MSP, and mixed). Currently hard-coded to work on EISCAT Svalbard Radar (ESR), let me know if you need it changed to work for another site (shouldn't take much work).
 
+![Example](example.png)
+
 Usage
 -----
 
