@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 from matplotlib import patheffects as pe
 from matplotlib.ticker import LogLocator, MultipleLocator
 from eiscat_toolkit import loc2gg, load_param_single_simple
-from cvdm import find_coord_alt, find_coord_alt_2, bm_drawCmappedPoly, cbar_right
+from helper_functions import find_coord_alt, find_coord_alt_2, bm_drawCmappedPoly, cbar_right
 from mpl_toolkits.basemap import Basemap
 from time import sleep
 
@@ -44,14 +44,14 @@ figSize = 60  # DPI of figure (makes EVERYTHING larger/smaller)
 # debug
 debugRT = False  # forces update of plot after each file is read
 
+#logging.basicConfig(level=logging.INFO)  # uncomment to turn on info messages (not debug)
+#logging.basicConfig(level=logging.DEBUG)  # uncomment to turn on debug messages
+
 #==============================================================================
 # End switchboard
 #==============================================================================
 
-#logging.basicConfig(level=logging.INFO)  # turn on info messages (not debug)
-#logging.basicConfig(level=logging.DEBUG)  # turn on debug messages
-
-# if auto choose datadir, get most recent 32m data directory
+# get most recent 32m data directory
 baseDataDir = r'C:\Users\Christer\Documents\Dokumenter\Jobbrelaterte dokumenter\PhD\EISCAT data\results'  # probably don't need to touch this
 subdirs_32m = [join(baseDataDir, d) for d in os.listdir(baseDataDir) if os.path.isdir(os.path.join(baseDataDir, d)) and '@32m' in d]
 dataFolder = join(baseDataDir, max(subdirs_32m, key=os.path.getmtime))
