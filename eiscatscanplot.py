@@ -52,9 +52,12 @@ debugRT = False  # forces update of plot after each file is read
 #==============================================================================
 
 # get most recent 32m data directory
-baseDataDir = r'C:\Users\Christer\Documents\Dokumenter\Jobbrelaterte dokumenter\PhD\EISCAT data\results'  # probably don't need to touch this
-subdirs_32m = [join(baseDataDir, d) for d in os.listdir(baseDataDir) if os.path.isdir(os.path.join(baseDataDir, d)) and '@32m' in d]
-dataFolder = join(baseDataDir, max(subdirs_32m, key=os.path.getmtime))
+baseDataDir = '/analysis/results'  # will look for 32m data folders in this directory
+if os.path.isdir(baseDataDir):
+    subdirs_32m = [join(baseDataDir, d) for d in os.listdir(baseDataDir) if os.path.isdir(os.path.join(baseDataDir, d)) and '@32m' in d]
+    dataFolder = join(baseDataDir, max(subdirs_32m, key=os.path.getmtime))
+else:
+    dataFolder = None
 
 
 class ScanDetectionError(Exception):
@@ -1042,9 +1045,15 @@ def overlay_scan(ScanObj):
 if __name__ == "__main__":
 
     # datafolder input
+    if dataFolder is None:
+        defaultDirStr = 'please specify, automatic detection failed: baseDataDir {} is not a directory'.format(baseDataDir)
+    else:
+        defaultDirStr = 'default: {}'.format(dataFolder)
     while True:
-        dataFolderOverride = raw_input('1/4: Data folder [default: {}] >> '.format(dataFolder))
-        if not dataFolderOverride:
+        dataFolderOverride = raw_input('1/4: Data folder [{}] >> '.format(defaultDirStr))
+        if not dataFolderOverride and dataFolder is None:
+            print('Please specify a data directory.')
+        elif not dataFolderOverride:
             break
         elif os.path.isdir(dataFolderOverride):
             dataFolder = dataFolderOverride
