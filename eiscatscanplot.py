@@ -1063,7 +1063,7 @@ if __name__ == "__main__":
     else:
         defaultDirStr = 'default: {}'.format(dataFolder)
     while True:
-        dataFolderOverride = raw_input('1/5: Data folder [{}] >> '.format(defaultDirStr))
+        dataFolderOverride = raw_input('\n1/5: Data folder [{}] >> '.format(defaultDirStr))
         if not dataFolderOverride and dataFolder is None:
             print('Please specify a data directory.')
         elif not dataFolderOverride:
@@ -1076,12 +1076,12 @@ if __name__ == "__main__":
 
     # plot save path input
     savePath = '~/users/eiscatscanplot/plotted/esr_scans_{}'.format(os.path.basename(os.path.normpath(dataFolder)))  # save plotted figures to this path.
-    savePathOverride = raw_input('2/5 Save plots in [default: {}] >> '.format(savePath))
+    savePathOverride = raw_input('\n2/5 Save plots in [default: {}] >> '.format(savePath))
     savePath = savePathOverride or savePath
     savePath = os.path.abspath(os.path.expanduser(savePath))
 
     # input latest image function
-    latestImagePath = raw_input('3/5: Maintain a "latest scan" image file somewhere? [full path and filename, empty to disable] >> ')
+    latestImagePath = raw_input('\n3/5: Maintain a "latest scan" image file somewhere? [full path and filename, empty to disable] >> ')
 
     # input which scan to start at
     startAtScanNo = 1
@@ -1092,7 +1092,7 @@ if __name__ == "__main__":
         if not len(scanNos) == 0:
             startAtScanNo = int(max(scanNos)) + 1
             defString = str(startAtScanNo) + ' (inferred from files in plot folder)'
-    startAtScanNoOverride = raw_input('4/5: Start plotting from scan no. [default: ' + defString + '] >> ')
+    startAtScanNoOverride = raw_input('\n4/5: Start plotting from scan no. [default: ' + defString + '] >> ')
     if startAtScanNoOverride and int(startAtScanNoOverride) == 0:
         startAtScanNo = 1
     elif startAtScanNoOverride:
@@ -1107,7 +1107,7 @@ if __name__ == "__main__":
     alts = [250, 500]  # altitude lines to plot [km]. Set to empty list [] to disable
 
     # additional settings
-    additionalSettings = raw_input('5/5: Ready to start. The following additional non-critical settings may be edited. The three first are only for correcting realtime flat-projected scan plots when doing mixed elevation/azimuth scans (the saved plots will be corrected anyway).\n' +
+    additionalSettings = raw_input('\n5/5: Ready to start. The following additional non-critical settings may be edited. The three first are only for correcting realtime flat-projected scan plots when doing mixed elevation/azimuth scans (the saved plots will be corrected anyway).\n' +
                                    '   - Scan speed: {} deg/s\n'.format(scanSpeedDegPerSec) +
                                    '   - Integration period (GUISDAP): {} s\n'.format(IPsec) +
                                    '   - Scan width: {} deg\n'.format(scanWidth) +
@@ -1117,26 +1117,26 @@ if __name__ == "__main__":
     if additionalSettings in ['n', 'no']:
 
         # input scan speed per sec
-        scanSpeedDegPerSecOverride = raw_input('Scan speed in degrees per second [default {}] >> '.format(scanSpeedDegPerSec))
+        scanSpeedDegPerSecOverride = raw_input('\nScan speed in degrees per second [default {}] >> '.format(scanSpeedDegPerSec))
         if scanSpeedDegPerSecOverride:
             scanSpeedDegPerSec = float(scanSpeedDegPerSecOverride)
 
         # input analysis integration period
-        IPsecOverride = raw_input('Integration period (of GUISDAP analysis) in seconds [default: {}] >> '.format(IPsec))
+        IPsecOverride = raw_input('\nIntegration period (of GUISDAP analysis) in seconds [default: {}] >> '.format(IPsec))
         if IPsecOverride:
             IPsec = float(IPsecOverride)
 
         # input scan width
-        scanWidthOverride = raw_input('Scan width in degrees [default: {}] >> '.format(scanWidth))
+        scanWidthOverride = raw_input('\nScan width in degrees [default: {}] >> '.format(scanWidth))
         if scanWidthOverride:
             scanWidth = float(scanWidthOverride)
 
         # input whether to remove data where error > |value|
-        removeLargeErrs_override = raw_input('Remove data where error > |value|? [y/n, default {}] >> '.format({True: 'yes', False: 'no'}[removeLargeErrs]))
+        removeLargeErrs_override = raw_input('\nRemove data where error > |value|? [y/n, default {}] >> '.format({True: 'yes', False: 'no'}[removeLargeErrs]))
         removeLargeErrs = True if removeLargeErrs_override in ['y', 'yes'] else removeLargeErrs
 
         # input altitude lines
-        altsOverride = raw_input('Draw lines at which altitudes? [space-separated list of numbers, blank for default ({}), single space to disable] >> '.format(' '.join(map(str, alts))))
+        altsOverride = raw_input('\nDraw lines at which altitudes? [space-separated list of numbers, blank for default ({}), single space to disable] >> '.format(' '.join(map(str, alts))))
         if altsOverride:
             alts = map(int, altsOverride.split())
 
