@@ -422,13 +422,13 @@ class Scan(object):
 
             else:  # plotting by self.plot_overlay() or something else
                 if plotFlat:
-                    self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=2.5, color='w', ax=_ax)[0])
-                    self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=1.5, color='k', ax=_ax)[0])
-                    self.plottedAltsFlat[alt].append(_ax.text(xFlat[0], yFlat[0], s=sFlat, horizontalalignment=horFlat, verticalalignment=vertFlat, rotation=angleFlat, path_effects=[pe.Stroke(linewidth=2, foreground='w'), pe.Normal()]))
+                    self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=2.5, color='w', ax=ax)[0])
+                    self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=1.5, color='k', ax=ax)[0])
+                    self.plottedAltsFlat[alt].append(ax.text(xFlat[0], yFlat[0], s=sFlat, horizontalalignment=horFlat, verticalalignment=vertFlat, rotation=angleFlat, path_effects=[pe.Stroke(linewidth=2, foreground='w'), pe.Normal()]))
                 else:
-                    self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=2.5, color='w', ax=_ax)[0])
-                    self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=1.5, color='k', ax=_ax)[0])
-                    self.plottedAlts[alt].append(_ax.text(x[0], y[0], s=str(alt), horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=2, foreground='w'), pe.Normal()]))
+                    self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=2.5, color='w', ax=ax)[0])
+                    self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=1.5, color='k', ax=ax)[0])
+                    self.plottedAlts[alt].append(ax.text(x[0], y[0], s=str(alt), horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=2, foreground='w'), pe.Normal()]))
 
     def update_alts(self, rotFlat=None):
 
@@ -647,7 +647,7 @@ class Scan(object):
         if ((RT or debugRT) and not self.finished) or onlyDoScanNo is not None:
             plt.pause(0.001)
 
-    def plot_overlay(self, mapObj, ax=None, data='Ne', altLines=[], radarLoc=[78.153, 16.029, 0.438], removeLargeErrs=False, clims=None, cmap=None, logMap=None, flatProjection=False, **kwargs):
+    def plot_overlay(self, mapObj, ax=None, data='Ne', altLines=[], radarLoc=[78.153, 16.029, 0.438], removeLargeErrs=False, clims=None, cmap=None, logMap=None, flatProjection=False, defScanSpeedPerIP=1.0*3.2, **kwargs):
 
         # input handling: data
         if data is 'Ne':
@@ -701,7 +701,7 @@ class Scan(object):
             print('WARNING: Flat-projected ESR plot will only work on geographic axes')
 
         # get coordinates of patch vertices
-        vertexLats, vertexLons, vertexLats_flat, vertexLons_flat = self._vertex_array(altLines, radarLoc, doAll=True)
+        vertexLats, vertexLons, vertexLats_flat, vertexLons_flat, vertexX_elev, vertexY_elev = self._vertex_array(altLines, radarLoc, doAll=True)
 
         if flatProjection:
             lats = vertexLats_flat
