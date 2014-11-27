@@ -1,5 +1,5 @@
 Description
-============
+-----------
 
 A python script for very easy realtime and offline plotting of EISCAT scans of all types (azimuth, elevation/MSP, and mixed). The script can be used on its own (useful for realtime plotting) or used as a standard Python module which allows you to easily overlay ESR scans on top of arbitrary axes (see section below on advanced usage). The script is currently hard-coded to work for the EISCAT Svalbard Radar (ESR), let me know if you need it changed to work for another site (shouldn't take much work).
 
