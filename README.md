@@ -6,7 +6,7 @@ A python script for very easy realtime and offline plotting of EISCAT scans of a
 Usage
 -----
 
-Copy `eiscatscanplot.py` to anywhere on your computer, open a terminal, go to the folder and run it using
+Copy the `.py` files to anywhere on your computer (`__init__.py` is not really needed for the simple usage described below), open a terminal, go to the folder and run the script using
 
     python eiscatscanplot.py
     
