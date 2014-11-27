@@ -742,7 +742,7 @@ class Scan(object):
 
         return pCol
 
-    def saveFig(self):
+    def saveFig(self, latestImagePath=None):
 
         if self.fig is not None:
             fn = '{0}-{1}_{2}_scan{3:03d}.png'.format(self.tStart[0].strftime('%Y-%m-%d_%H%M'), self.tEnd[-1].strftime('%H%M'), self.scDir, self.scNo)
@@ -752,7 +752,19 @@ class Scan(object):
             plt.savefig(os.path.join(saveTo, fn), dpi=figSize)
             if RT or debugRT:
                 print('Saved file ' + os.path.join(saveTo, fn))
-#                logging.info('Saved file ' + fn)
+#                logging.info('Saved file ' + os.path.join(saveTo, fn))
+
+            # "latest scan" image
+            if latestImagePath:
+                latestImagePath = os.path.abspath(os.path.expanduser(latestImagePath))
+                path = os.path.split(latestImagePath)[0]
+                if not os.path.isdir(path):
+                    os.makedirs(path)
+                plt.savefig(latestImagePath, dpi=figSize)
+                if RT or debugRT:
+                    print('Saved file ' + latestImagePath)
+#                    logging.info('Saved file ' + latestImagePath)
+
         else:
             logging.warn('Scan #{}: No figure to save (perhaps because number of beams in scan is < 3)'.format(self.scNo))
 
@@ -818,7 +830,7 @@ def fix_dimensions(par2D, new_par2D, err2D, new_err2D):
 
 
 def scan_parse(dataFolder, savePath,
-               doPlot=False, onlyDoScanNo=None, startAtScanNo=None, removeLargeErrs=False, RT=False, RT_replotAfterScan=True,
+               doPlot=False, latestImagePath=None, onlyDoScanNo=None, startAtScanNo=None, removeLargeErrs=False, RT=False, RT_replotAfterScan=True,
                scanWidth=120, defScanSpeedPerIP=0.62*3, alts=[250, 500], radarLoc=[78.153, 16.029, 0.438], mapWidth=1.8e6, figSize=72,
                debugRT=False):
     '''docstring'''
@@ -958,7 +970,7 @@ def scan_parse(dataFolder, savePath,
                                 thisScan.closeFig()
                             if doPlot:
                                 thisScan.plot()
-                                thisScan.saveFig()
+                                thisScan.saveFig(latestImagePath=latestImagePath)
                                 if not doOnlyThisScan:
                                     thisScan.closeFig()
                                 else:  # return scan in addition to plotting if only plotting this scan
@@ -1008,7 +1020,7 @@ def scan_parse(dataFolder, savePath,
                         thisScan.finished = True
                         if doPlot:
                             thisScan.plot()
-                            thisScan.saveFig()
+                            thisScan.saveFig(latestImagePath=latestImagePath)
                             thisScan.closeFig()
                         else:
                             if doOnlyThisScan:
@@ -1028,7 +1040,7 @@ def scan_parse(dataFolder, savePath,
             thisScan.closeFig()
         if doPlot:
             thisScan.plot()
-            thisScan.saveFig()
+            thisScan.saveFig(latestImagePath=latestImagePath)
             thisScan.closeFig()
         else:
             if doOnlyThisScan:
@@ -1051,7 +1063,7 @@ if __name__ == "__main__":
     else:
         defaultDirStr = 'default: {}'.format(dataFolder)
     while True:
-        dataFolderOverride = raw_input('1/4: Data folder [{}] >> '.format(defaultDirStr))
+        dataFolderOverride = raw_input('1/5: Data folder [{}] >> '.format(defaultDirStr))
         if not dataFolderOverride and dataFolder is None:
             print('Please specify a data directory.')
         elif not dataFolderOverride:
@@ -1064,9 +1076,12 @@ if __name__ == "__main__":
 
     # plot save path input
     savePath = '~/users/eiscatscanplot/esr_scans_{}'.format(os.path.basename(os.path.normpath(dataFolder)))  # save plotted figures to this path.
-    savePathOverride = raw_input('2/4 Save plots in [default: {}] >> '.format(savePath))
+    savePathOverride = raw_input('2/5 Save plots in [default: {}] >> '.format(savePath))
     savePath = savePathOverride or savePath
     savePath = os.path.abspath(os.path.expanduser(savePath))
+
+    # input latest image function
+    latestImagePath = raw_input('3/5: Maintain a "latest scan" image file somewhere? [full path and filename, empty to disable] >> ')
 
     # input which scan to start at
     startAtScanNo = 1
@@ -1077,7 +1092,7 @@ if __name__ == "__main__":
         if not len(scanNos) == 0:
             startAtScanNo = int(max(scanNos)) + 1
             defString = str(startAtScanNo) + ' (inferred from files in plot folder)'
-    startAtScanNoOverride = raw_input('3/4: Start plotting from scan no. [default: ' + defString + '] >> ')
+    startAtScanNoOverride = raw_input('4/5: Start plotting from scan no. [default: ' + defString + '] >> ')
     if startAtScanNoOverride and int(startAtScanNoOverride) == 0:
         startAtScanNo = 1
     elif startAtScanNoOverride:
@@ -1092,7 +1107,7 @@ if __name__ == "__main__":
     alts = [250, 500]  # altitude lines to plot [km]. Set to empty list [] to disable
 
     # additional settings
-    additionalSettings = raw_input('4/4: Ready to start. The following additional non-critical settings may be edited. The three first are only for correcting realtime flat-projected scan plots when doing mixed elevation/azimuth scans (the saved plots will be corrected anyway).\n' +
+    additionalSettings = raw_input('5/5: Ready to start. The following additional non-critical settings may be edited. The three first are only for correcting realtime flat-projected scan plots when doing mixed elevation/azimuth scans (the saved plots will be corrected anyway).\n' +
                                    '   - Scan speed: {} deg/s\n'.format(scanSpeedDegPerSec) +
                                    '   - Integration period (GUISDAP): {} s\n'.format(IPsec) +
                                    '   - Scan width: {} deg\n'.format(scanWidth) +
@@ -1127,7 +1142,7 @@ if __name__ == "__main__":
 
     defScanSpeedPerIP = scanSpeedDegPerSec*IPsec  # default scan speed in degrees per integration period. Used to assist in rotating flat-projection plots
 
-    scan_parse(dataFolder=dataFolder, savePath=savePath, doPlot=True, RT=RT,
+    scan_parse(dataFolder=dataFolder, savePath=savePath, doPlot=True, latestImagePath=latestImagePath, RT=RT,
                onlyDoScanNo=onlyDoScanNo, startAtScanNo=startAtScanNo, removeLargeErrs=removeLargeErrs, RT_replotAfterScan=RT_replotAfterScan,
                scanWidth=scanWidth, defScanSpeedPerIP=defScanSpeedPerIP, alts=alts, radarLoc=radarLoc, mapWidth=mapWidth, figSize=figSize,
                debugRT=debugRT)
