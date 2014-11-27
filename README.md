@@ -6,7 +6,11 @@ A python script for very easy realtime and offline plotting of EISCAT scans of a
 Usage
 -----
 
-Copy `eiscatscanplot.py` to anywhere on your computer, open a terminal, go to the folder and run it with `python eiscatscanplot.py`. The script will auto-detect the latest 32m folder in the ESR data directory (this can be overridden when you run the script). You may change a few constants at the top of the script to adjust the script behaviour, but this is generally not needed.
+Copy `eiscatscanplot.py` to anywhere on your computer, open a terminal, go to the folder and run it using
+
+    `python eiscatscanplot.py`
+    
+The script will auto-detect the latest 32m folder in the ESR data directory (this can be overridden when you run the script). You may change a few constants at the top of the script to adjust the script behaviour, but this is generally not needed.
 
 The script will update plots in realtime, and when it detects the end of a scan, it will save the figure and start a new plot.
 
