@@ -91,6 +91,8 @@ class Scan(object):
         self.plottedBeams = []
         self.mainTitle = None
         self.byline = None
+        self.elScanDirectionPlotted = False
+        self.scDirElev = None
 
         # data
         self.Time = init_Time
@@ -419,9 +421,10 @@ class Scan(object):
                     self.plottedAlts[alt].append(_ax.text(x[0], y[0], s=str(alt), horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=3, foreground='w'), pe.Normal()]))
 
                 for _ax in self.axes[4:8]:
-                    self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=2.5, color='w', ax=_ax)[0])
-                    self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=1.5, color='k', ax=_ax)[0])
-                    self.plottedAltsFlat[alt].append(_ax.text(xFlat[0], yFlat[0], s=sFlat, horizontalalignment=horFlat, verticalalignment=vertFlat, rotation=angleFlat, path_effects=[pe.Stroke(linewidth=2, foreground='w'), pe.Normal()]))
+                    if self.scDir not in ['elev incr', 'elev decr']:
+                        self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=2.5, color='w', ax=_ax)[0])
+                        self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=1.5, color='k', ax=_ax)[0])
+                        self.plottedAltsFlat[alt].append(_ax.text(xFlat[0], yFlat[0], s=sFlat, horizontalalignment=horFlat, verticalalignment=vertFlat, rotation=angleFlat, path_effects=[pe.Stroke(linewidth=2, foreground='w'), pe.Normal()]))
 
             else:  # plotting by self.plot_overlay() or something else
                 if plotFlat:
@@ -547,6 +550,10 @@ class Scan(object):
             for ax in self.axes[0:4]:
                 self.map.drawcoastlines(linewidth=0.5, color="k", ax=ax)
 
+            # draw inivible coastlines in flat plots
+            for ax in self.axes[4:8]:
+                self.map.drawcoastlines(linewidth=0, color="w", zorder=-100, ax=ax)
+
             # small plot "titles"
             for ax in self.axes[4:8]:
                 ax.text(0.5, 1.01, u'Projected to 30\u00B0 elevation', horizontalalignment='center', verticalalignment='bottom', fontsize='medium', transform=ax.transAxes)
@@ -612,7 +619,39 @@ class Scan(object):
             self.axes[i+8].set_xlabel('Flat ground distance [km]')
             self.axes[i+8].set_ylabel('Altitude [km]')
             self.axes[i+8].grid('on')
-            self.axes[i+8].set_title('Elevation scan (for meridional scans)', fontsize='medium')
+            self.axes[i+8].set_title('Elevation scan', fontsize='medium')
+
+            # show cardinal directions on elevation scans
+            if self.scDir in ['elev incr', 'elev decr'] and not self.elScanDirectionPlotted:
+                azDir = self.Az[0]
+                if self.scDir == 'elev decr':
+                    azDir += 180
+
+                # function to find out if azDir is within 22.5 degrees of some direction
+                az_near = lambda x: np.cos(np.deg2rad(azDir-x)) >= np.cos(np.deg2rad(22.5))
+
+                # dictionary of direction string for positive/negative elevation at a given azimuth
+                dirDict = {0: ['N', 'S'],
+                           45: ['NE', 'SW'],
+                           90: ['E', 'W'],
+                           135: ['SE', 'NW'],
+                           180: ['S', 'N'],
+                           225: ['SW', 'NE'],
+                           270: ['W', 'E'],
+                           315: ['NW', 'SE']}
+
+                # find the correct direction string
+                for direction in dirDict:
+                    if az_near(direction):
+                        dirs = dirDict[direction]
+                        self.scDirElev = '-'.join(dirs)
+                        break
+
+                left, right = dirs if self.scDir == 'elev decr' else dirs[::-1]
+                self.axes[i+8].text(0, -0.25, left, ha='left', fontweight='bold', transform=self.axes[8].transAxes)
+                self.axes[i+8].text(1, -0.25, right, ha='right', fontweight='bold', transform=self.axes[8].transAxes)
+
+        self.elScanDirectionPlotted = True
 
         # big plot titles
         self.axes[0].set_title(u'Electron density [m$\mathregular{^{−3}}$]')
@@ -639,7 +678,8 @@ class Scan(object):
 #        self.axes[4].set_xlim((xmax-xmin)*0.2, (xmax-xmin)*0.8)
 
         # set main title of plot
-        mainTitleStr = u'Scan #{0} ({1})   {2}\u2212{3}'.format(self.scNo, self.scDir, self.tStart[0].strftime('%d %b %Y %H:%M:%S'), self.tEnd[-1].strftime('%H:%M:%S'))
+
+        mainTitleStr = u'Scan #{0} ({1})   {2}\u2212{3}'.format(self.scNo, self.scDirElev or self.scDir, self.tStart[0].strftime('%d %b %Y %H:%M:%S'), self.tEnd[-1].strftime('%H:%M:%S'))
         if self.mainTitle is None:
             self.mainTitle = self.fig.text(0.5, 0.98, mainTitleStr, horizontalalignment='center', verticalalignment='top', fontsize='xx-large')
         else:
@@ -752,7 +792,7 @@ class Scan(object):
     def saveFig(self, latestImagePath=None):
 
         if self.fig is not None:
-            fn = '{0}-{1}_{2}_scan{3:03d}.png'.format(self.tStart[0].strftime('%Y-%m-%d_%H%M'), self.tEnd[-1].strftime('%H%M'), self.scDir.replace(' ', '_'), self.scNo)
+            fn = '{0}-{1}_{2}_scan{3:03d}.png'.format(self.tStart[0].strftime('%Y-%m-%d_%H%M'), self.tEnd[-1].strftime('%H%M'), self.scDirElev or self.scDir, self.scNo)
             saveTo = os.path.abspath(os.path.expanduser(savePath))
             if not os.path.isdir(saveTo):
                 os.makedirs(saveTo)
@@ -797,6 +837,8 @@ class Scan(object):
         self.cbarAxis = [None]*4
         self.plottedBeams = []
         self.mainTitle = None
+        self.byline = None
+        self.elScanDirectionPlotted = False
 
 
 def scan_dir(currentAzim, lastAzim):
@@ -960,7 +1002,7 @@ def scan_parse(dataFolder, savePath,
                     if startOfVeryFirstScan or endOfStaticPeriod or endOfScan_newScan:
                         scDir = currentScDir if currentScDir != 'stat' else currentScDirElev
                         if scDir in ['elev incr', 'elev decr']:
-                            useAlts = []
+                            useAlts = [400]
                         else:
                             useAlts = alts
 
