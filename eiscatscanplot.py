@@ -1165,7 +1165,7 @@ if __name__ == "__main__":
     if os.path.isdir(savePath):
         scanNos = [fn[-7:-4] for fn in os.listdir(savePath) if '.png' in fn]
         if not len(scanNos) == 0:
-            startAt = str(int(max(scanNos)) + 1)
+            startAt = str(int(max(scanNos)))  # will overwrite the last plot, which might be incomplete
             defString = startAt + ' (inferred from files in plot folder)'
     startAtOverride = raw_input('\n4/5: Start plotting from scan no. or time HH:MM [default: scan no. ' + defString + '] >> ')
     if startAtOverride == '0':
