@@ -898,7 +898,7 @@ def scan_parse(dataFolder, savePath,
                     currentScDir = scan_dir(currentAzim, lastAzim)
                     currentElev = par1D[0, 1]
                     currentScDirElev = scan_dir_elev(currentElev, lastElev)
-                    logging.debug('currentAzim = {} | lastAzim = {} | currentScDir = {} | lastScDir = {} | currentEl = {} | scanNoThis = {}'.format(currentAzim, lastAzim, currentScDir, lastScDir, par1D[0, 1], scanNoThis))
+                    logging.debug('currentAzim = {} | lastAzim = {} | currentScDir = {} | lastScDir = {} | currentElev = {} | lastElev = {} | currentScDirElev = {} | scanNoThis = {}'.format(currentAzim, lastAzim, currentScDir, lastScDir, currentElev, lastElev, currentScDirElev, scanNoThis))
 
                     # logic to determine if this scan should be plotted
                     skipThisScan = (onlyDoScanNo is not None and scanNoThis != onlyDoScanNo) or (startAtScanNo is not None and scanNoThis < startAtScanNo)
