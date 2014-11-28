@@ -533,8 +533,8 @@ class Scan(object):
 
             gs_main.update(left=0.035, right=0.96, bottom=0.06, top=0.9, wspace=0.1, hspace=0)
 
-            #rocket_track = np.loadtxt('/home/kstdev/users/rocket/CAPER/CAPERtrack.txt')
-            rocket_track = np.loadtxt('CAPERtrack.txt', skiprows=8)
+            rocket_track = np.loadtxt('/home/kstdev/users/rocket/CAPER/CAPERtrack.txt')
+#            rocket_track = np.loadtxt('CAPERtrack.txt', skiprows=8)
 
             # initiate maps
             self.map = Basemap(width=mapWidth,
