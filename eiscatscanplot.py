@@ -880,7 +880,7 @@ def scan_parse(dataFolder, savePath,
                debugRT=False):
     '''docstring'''
 
-    alts = alts or [250, 500]
+    alts = [250, 500] if alts is None else alts
     radarLoc = radarLoc or [78.153, 16.029, 0.438]
     startAt = '1' if onlyDoScanNo else startAt
 
