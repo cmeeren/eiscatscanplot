@@ -505,6 +505,8 @@ class Scan(object):
             smallPlotRotAngle = self.Az[0] + scanWidth/2
         elif self.scDir == 'ccw':
             smallPlotRotAngle = self.Az[0] - scanWidth/2
+        else:
+            smallPlotRotAngle = 0
 
         # initiate figure/axes
         if self.fig is None:
