@@ -531,6 +531,9 @@ class Scan(object):
 
             gs_main.update(left=0.035, right=0.96, bottom=0.06, top=0.9, wspace=0.1, hspace=0)
 
+            #rocket_track = np.loadtxt('/home/kstdev/users/rocket/CAPER/CAPERtrack.txt')
+            rocket_track = np.loadtxt('CAPERtrack.txt', skiprows=8)
+
             # initiate maps
             self.map = Basemap(width=mapWidth,
                                height=mapWidth,
@@ -542,6 +545,14 @@ class Scan(object):
             # draw coastlines
             for ax in self.axes[0:4]:
                 self.map.drawcoastlines(linewidth=0.5, color="k", ax=ax)
+
+                # draw rocket tracks
+                self.map.plot(rocket_track[:, 4], rocket_track[:, 3], latlon=True, ax=ax, color='k', linewidth=2, path_effects=[pe.withStroke(foreground='w', linewidth=4)])
+                for timeafterlaunch in range(0, 1000, 100):
+                    row = rocket_track[rocket_track[:, 0] == timeafterlaunch, :]
+                    row = row.flatten()
+                    x, y = self.map(row[4], row[3])
+                    ax.annotate(s=str(int(row[0])), xy=(x, y), xycoords='data', xytext=(-25, 0), textcoords='offset points', path_effects=[pe.withStroke(foreground='w', linewidth=3)])
 
             # small plot "titles"
             for ax in self.axes[4:8]:
@@ -648,7 +659,7 @@ class Scan(object):
         if ((RT or debugRT) and not self.finished) or onlyDoScanNo is not None:
             plt.pause(0.001)
 
-    def plot_overlay(self, mapObj, ax=None, data='Ne', altLines=[], radarLoc=[78.153, 16.029, 0.438], removeLargeErrs=False, clims=None, cmap=None, logMap=None, flatProjection=False, defScanSpeedPerIP=1.0*3.2, **kwargs):
+    def plot_overlay(self, mapObj, ax=None, data='Ne', altLines=None, radarLoc=[78.153, 16.029, 0.438], removeLargeErrs=False, clims=None, cmap=None, logMap=None, flatProjection=False, defScanSpeedPerIP=1.0*3.2, **kwargs):
 
         # input handling: data
         if data is 'Ne':
@@ -1075,13 +1086,18 @@ if __name__ == "__main__":
             print('Folder {} doesn\'t exist, please try again.'.format(dataFolderOverride))
 
     # plot save path input
-    savePath = '~/users/eiscatscanplot/plotted/esr_scans_{}'.format(os.path.basename(os.path.normpath(dataFolder)))  # save plotted figures to this path.
+    savePath = '/www_kstdev/display/nov2014/esr_scans_{}'.format(os.path.basename(os.path.normpath(dataFolder)))  # save plotted figures to this path.
     savePathOverride = raw_input('\n2/5 Save plots in [default: {}] >> '.format(savePath))
     savePath = savePathOverride or savePath
     savePath = os.path.abspath(os.path.expanduser(savePath))
 
     # input latest image function
-    latestImagePath = raw_input('\n3/5: Maintain a "latest scan" image file somewhere? [full path and filename, empty to disable] >> ')
+    latestImagePath = '/www_kstdev/display/ESRlatest.png'
+    latestImagePathOverride = raw_input('\n3/5: Maintain a "latest scan" image file somewhere? [default ' + latestImagePath + ', single space to disable] >> ')
+    if latestImagePathOverride == ' ':
+        latestImagePath = ''
+    elif latestImagePathOverride:
+        latestImagePath = latestImagePathOverride
 
     # input which scan to start at
     startAtScanNo = 1
@@ -1104,7 +1120,7 @@ if __name__ == "__main__":
     IPsec = 3.2  # integration period in seconds
     scanWidth = 120  # assumed scan width in degrees. Used for realtime flat-projection plots
     removeLargeErrs = False   # remove data where error > |value|
-    alts = [250, 500]  # altitude lines to plot [km]. Set to empty list [] to disable
+    alts = []  # altitude lines to plot [km]. Set to empty list [] to disable
 
     # additional settings
     additionalSettings = raw_input('\n5/5: Ready to start. The following additional non-critical settings may be edited. The three first are only for correcting realtime flat-projected scan plots when doing mixed elevation/azimuth scans (the saved plots will be corrected anyway).\n' +
