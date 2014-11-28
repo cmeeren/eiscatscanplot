@@ -27,7 +27,7 @@ from time import sleep
 
 plt.ioff()  # performance impact is negligible, but when plotting many plots, this allows to plot and save without showing figure
 np.seterr(invalid='ignore', divide='ignore')
-plt.rcParams['font.size'] = 10
+plt.rcParams['font.size'] = 12
 
 #==============================================================================
 # Some defaults
@@ -79,6 +79,7 @@ class Scan(object):
         self.fig = None
         self.axes = []
         self.map = None
+        self.plotAlts = []  # contains the altitude lines to be plotted
         self.plottedAlts = {}
         self.plottedAltsFlat = {}
         self.altLats = {}
@@ -90,6 +91,8 @@ class Scan(object):
         self.plottedBeams = []
         self.mainTitle = None
         self.byline = None
+        self.elScanDirectionPlotted = False
+        self.scDirElev = None
 
         # data
         self.Time = init_Time
@@ -395,13 +398,13 @@ class Scan(object):
                 vertFlat = 'top'
 #                text_alignment_Flat = (0.5, 1)
                 angleFlat = -30
-                sFlat = '    ' + str(alt)
+                sFlat = '    ' + str(alt) + '$\,$km'
             else:
                 horFlat = 'center'
                 vertFlat = 'top'
 #                text_alignment_Flat = (0.5, 1)
                 angleFlat = 30
-                sFlat = str(alt) + '         '
+                sFlat = str(alt) + '$\,$km' + '         '
 
             # initiate dict item for this alt
             try:
@@ -415,12 +418,13 @@ class Scan(object):
                 for _ax in self.axes[0:4]:
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=2.5, color='w', ax=_ax)[0])
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=1.5, color='k', ax=_ax)[0])
-                    self.plottedAlts[alt].append(_ax.text(x[0], y[0], s=str(alt), horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=3, foreground='w'), pe.Normal()]))
+                    self.plottedAlts[alt].append(_ax.text(x[0], y[0], s=str(alt) + '$\,$km', horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=3, foreground='w'), pe.Normal()]))
 
                 for _ax in self.axes[4:8]:
-                    self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=2.5, color='w', ax=_ax)[0])
-                    self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=1.5, color='k', ax=_ax)[0])
-                    self.plottedAltsFlat[alt].append(_ax.text(xFlat[0], yFlat[0], s=sFlat, horizontalalignment=horFlat, verticalalignment=vertFlat, rotation=angleFlat, path_effects=[pe.Stroke(linewidth=2, foreground='w'), pe.Normal()]))
+                    if self.scDir not in ['elev incr', 'elev decr']:
+                        self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=2.5, color='w', ax=_ax)[0])
+                        self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=1.5, color='k', ax=_ax)[0])
+                        self.plottedAltsFlat[alt].append(_ax.text(xFlat[0], yFlat[0], s=sFlat, horizontalalignment=horFlat, verticalalignment=vertFlat, rotation=angleFlat, path_effects=[pe.Stroke(linewidth=2, foreground='w'), pe.Normal()]))
 
             else:  # plotting by self.plot_overlay() or something else
                 if plotFlat:
@@ -430,7 +434,7 @@ class Scan(object):
                 else:
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=2.5, color='w', ax=ax)[0])
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=1.5, color='k', ax=ax)[0])
-                    self.plottedAlts[alt].append(ax.text(x[0], y[0], s=str(alt), horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=2, foreground='w'), pe.Normal()]))
+                    self.plottedAlts[alt].append(ax.text(x[0], y[0], s=str(alt) + '$\,$km', horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=2, foreground='w'), pe.Normal()]))
 
     def update_alts(self, rotFlat=None):
 
@@ -557,24 +561,28 @@ class Scan(object):
                     x, y = self.map(row[4], row[3])
                     ax.annotate(s=str(int(row[0])), xy=(x, y), xycoords='data', xytext=(-25, 0), textcoords='offset points', path_effects=[pe.withStroke(foreground='w', linewidth=3)])
 
+            # draw inivible coastlines in flat plots
+            for ax in self.axes[4:8]:
+                self.map.drawcoastlines(linewidth=0, color="w", zorder=-100, ax=ax)
+
             # small plot "titles"
             for ax in self.axes[4:8]:
-                ax.text(0.5, 1.01, u'Projected to 30\u00B0 elevation and rotated (for combined az/el scans)', horizontalalignment='center', verticalalignment='bottom', fontsize='medium', transform=ax.transAxes)
+                ax.text(0.5, 1.01, u'Projected to 30\u00B0 elevation', horizontalalignment='center', verticalalignment='bottom', fontsize='medium', transform=ax.transAxes)
 
             # uncomment to change map background from white to something else
 #            for ax in self.axes[0:8]:
 #                self.map.drawmapboundary(fill_color='0.8', ax=ax)
 
         # get coordinates of things to plot
-        vertexLats, vertexLons, vertexLats_flat, vertexLons_flat, vertexX_elev, vertexY_elev = self._vertex_array(alts, radarLoc)
+        vertexLats, vertexLons, vertexLats_flat, vertexLons_flat, vertexX_elev, vertexY_elev = self._vertex_array(self.plotAlts, radarLoc)
 
         # plotting parameters
         #          data   clims          ticks                           colormap       logarithmic colormap
 #        toPlot = [('Ne',  (0, 1e12),     MultipleLocator(base=2e11),     'jet',         False),
-        toPlot = [('Ne',  (1e10, 1e12),  LogLocator(subs=range(1, 10)),  'jet',         True),
-                  ('Vi',  (-500, 500),   [-500, -250, 0, 250, 500],      'esrBlueRed',  False),
-                  ('Te',  (0, 4000),     [0, 1000, 2000, 3000, 4000],    'jet',         False),
-                  ('Ti',  (0, 3000),     [0, 1000, 2000, 3000],          'jet',         False)]
+        toPlot = [('Ne',  (1e10, 1e12),  LogLocator(subs=range(1, 10)),  'nipy_spectral',         True),
+                  ('Vi',  (-500, 500),   [-500, -250, 0, 250, 500],      'coolwarm',  False),
+                  ('Te',  (0, 4000),     [0, 1000, 2000, 3000, 4000],    'nipy_spectral',         False),
+                  ('Ti',  (0, 3000),     [0, 1000, 2000, 3000],          'nipy_spectral',         False)]
 
         for i, e in enumerate(toPlot):
 
@@ -619,10 +627,42 @@ class Scan(object):
             self.axes[i+8].set_xlim((-800, 800))
             self.axes[i+8].set_ylim((100, 700))
             self.axes[i+8].set_yticks([200, 400, 600])
-            self.axes[8].set_xlabel('SOUTH     Ground distance [km]     NORTH')
-            self.axes[8].set_ylabel('Altitude [km]')
+            self.axes[i+8].set_xlabel('Flat ground distance [km]')
+            self.axes[i+8].set_ylabel('Altitude [km]')
             self.axes[i+8].grid('on')
-            self.axes[i+8].set_title('Elevation scan (for meridional scans)', fontsize='medium')
+            self.axes[i+8].set_title('Elevation scan', fontsize='medium')
+
+            # show cardinal directions on elevation scans
+            if self.scDir in ['elev incr', 'elev decr'] and not self.elScanDirectionPlotted:
+                azDir = self.Az[0]
+                if self.scDir == 'elev decr':
+                    azDir += 180
+
+                # function to find out if azDir is within 22.5 degrees of some direction
+                az_near = lambda x: np.cos(np.deg2rad(azDir-x)) >= np.cos(np.deg2rad(22.5))
+
+                # dictionary of direction string for positive/negative elevation at a given azimuth
+                dirDict = {0: ['N', 'S'],
+                           45: ['NE', 'SW'],
+                           90: ['E', 'W'],
+                           135: ['SE', 'NW'],
+                           180: ['S', 'N'],
+                           225: ['SW', 'NE'],
+                           270: ['W', 'E'],
+                           315: ['NW', 'SE']}
+
+                # find the correct direction string
+                for direction in dirDict:
+                    if az_near(direction):
+                        dirs = dirDict[direction]
+                        self.scDirElev = '-'.join(dirs)
+                        break
+
+                left, right = dirs if self.scDir == 'elev decr' else dirs[::-1]
+                self.axes[i+8].text(0, -0.25, left, ha='left', fontweight='bold', transform=self.axes[8].transAxes)
+                self.axes[i+8].text(1, -0.25, right, ha='right', fontweight='bold', transform=self.axes[8].transAxes)
+
+        self.elScanDirectionPlotted = True
 
         # big plot titles
         self.axes[0].set_title(u'Electron density [m$\mathregular{^{−3}}$]')
@@ -636,10 +676,6 @@ class Scan(object):
         else:
             self.plot_alts(rotFlat=[-smallPlotRotAngle, radarLoc[0], radarLoc[1]])
 
-        # fix aspect problems if no altitude levels are plotted (by plotting an invisible dot)
-        if not self.plottedAlts:
-            self.map.plot(0, 0, alpha=0, ax=self.axes[4])
-
         # adjust limits of flat-projection plots
         ymin = self.map.llcrnry
         ymax = self.map.urcrnry
@@ -649,20 +685,24 @@ class Scan(object):
 #        self.axes[4].set_xlim((xmax-xmin)*0.2, (xmax-xmin)*0.8)
 
         # set main title of plot
-        mainTitleStr = u'Scan #{0} ({1})   {2}\u2212{3}'.format(self.scNo, self.scDir, self.tStart[0].strftime('%d %b %Y %H:%M:%S'), self.tEnd[-1].strftime('%H:%M:%S'))
+
+        mainTitleStr = u'Scan #{0} ({1})   {2}\u2212{3}'.format(self.scNo, self.scDirElev or self.scDir, self.tStart[0].strftime('%d %b %Y %H:%M:%S'), self.tEnd[-1].strftime('%H:%M:%S'))
         if self.mainTitle is None:
             self.mainTitle = self.fig.text(0.5, 0.98, mainTitleStr, horizontalalignment='center', verticalalignment='top', fontsize='xx-large')
         else:
             self.mainTitle.set_text(mainTitleStr)
 
         if self.byline is None:
-            self.byline = self.fig.text(0.98, 0.98, 'Plotting software by Christer van der Meeren\ncmeeren@gmail.com\nCode available at https://github.com/cmeeren/eiscatscanplot', ha='right', va='top')
+            self.byline = self.fig.text(0.98, 0.98, 'Plotting software by Christer van der Meeren (cmeeren@gmail.com)\nCode available at https://github.com/cmeeren/eiscatscanplot', ha='right', va='top')
 
         # draw/update plot if realtime or only plotting a single scan
         if ((RT or debugRT) and not self.finished) or onlyDoScanNo is not None:
             plt.pause(0.001)
 
-    def plot_overlay(self, mapObj, ax=None, data='Ne', altLines=None, radarLoc=[78.153, 16.029, 0.438], removeLargeErrs=False, clims=None, cmap=None, logMap=None, flatProjection=False, defScanSpeedPerIP=1.0*3.2, **kwargs):
+    def plot_overlay(self, mapObj, ax=None, data='Ne', altLines=None, radarLoc=None, removeLargeErrs=False, clims=None, cmap=None, logMap=None, flatProjection=False, defScanSpeedPerIP=1.0*3.2, **kwargs):
+
+        altLines = altLines or []
+        radarLoc = radarLoc or [78.153, 16.029, 0.438]
 
         # input handling: data
         if data is 'Ne':
@@ -759,7 +799,7 @@ class Scan(object):
     def saveFig(self, latestImagePath=None):
 
         if self.fig is not None:
-            fn = '{0}-{1}_{2}_scan{3:03d}.png'.format(self.tStart[0].strftime('%Y-%m-%d_%H%M'), self.tEnd[-1].strftime('%H%M'), self.scDir.replace(' ', '_'), self.scNo)
+            fn = '{0}-{1}_{2}_scan{3:03d}.png'.format(self.tStart[0].strftime('%Y-%m-%d_%H%M'), self.tEnd[-1].strftime('%H%M'), self.scDirElev or self.scDir, self.scNo)
             saveTo = os.path.abspath(os.path.expanduser(savePath))
             if not os.path.isdir(saveTo):
                 os.makedirs(saveTo)
@@ -804,6 +844,8 @@ class Scan(object):
         self.cbarAxis = [None]*4
         self.plottedBeams = []
         self.mainTitle = None
+        self.byline = None
+        self.elScanDirectionPlotted = False
 
 
 def scan_dir(currentAzim, lastAzim):
@@ -845,9 +887,13 @@ def fix_dimensions(par2D, new_par2D, err2D, new_err2D):
 
 def scan_parse(dataFolder, savePath,
                doPlot=False, latestImagePath=None, onlyDoScanNo=None, startAt=None, removeLargeErrs=False, RT=False, RT_replotAfterScan=True,
-               scanWidth=120, defScanSpeedPerIP=0.62*3, alts=[250, 500], radarLoc=[78.153, 16.029, 0.438], mapWidth=1.8e6, figSize=72,
+               scanWidth=120, defScanSpeedPerIP=0.62*3, alts=None, radarLoc=None, mapWidth=1.8e6, figSize=72,
                debugRT=False):
     '''docstring'''
+
+    alts = alts or [250, 500]
+    radarLoc = radarLoc or [78.153, 16.029, 0.438]
+    startAt = '1' if onlyDoScanNo else startAt
 
     oldfiles = set([])  # already loaded data files
     currentScDir = None   # current scan direction
@@ -952,13 +998,21 @@ def scan_parse(dataFolder, savePath,
 #                    endOfScan_newScan = lastScDir != currentScDir and lastScDir in ['cw', 'ccw'] and currentScDir in ['cw', 'ccw']
 #                    endOfScan_static = lastScDir != currentScDir and lastScDir in ['cw', 'ccw'] and currentScDir == 'stat'
 
-                    if (endOfScan_newScan or startOfVeryFirstScan) and Time[-1, -1].time() < startTime:
+                    if (endOfScan_newScan or startOfVeryFirstScan or endOfStaticPeriod) and Time[-1, -1].time() < startTime:
                         skipNextScan = True
 
                     # check that only one of the above is True
                     controlList = [noScanYet, staticPeriod, startOfVeryFirstScan, endOfStaticPeriod, sameScanAsBefore, endOfScan_newScan, endOfScan_static]
                     if sum(controlList) != 1:
                         raise ScanDetectionError('none or >1 of control logics are True: {}'.format(controlList))
+
+                    # remove altitude lines if elevation-only scan
+                    if startOfVeryFirstScan or endOfStaticPeriod or endOfScan_newScan:
+                        scDir = currentScDir if currentScDir != 'stat' else currentScDirElev
+                        if scDir in ['elev incr', 'elev decr']:
+                            useAlts = [400]
+                        else:
+                            useAlts = alts
 
                     #################################################
                     # DETERMINE WHAT GETS GONE WITH THE LOADED DATA #
@@ -979,8 +1033,8 @@ def scan_parse(dataFolder, savePath,
                             if RT or debugRT:
                                 print('\nInitializing scan #{} (scan start: {})'.format(scanNoThis, Time[0, 0]))
                             par2D_prev, par2D, err2D_prev, err2D = fix_dimensions(par2D_prev, par2D, err2D_prev, err2D)
-                            scDir = currentScDir if currentScDir != 'stat' else currentScDirElev
                             thisScan = Scan(np.append(Time_prev, Time, axis=1), np.append(par1D_prev, par1D, axis=0), np.append(par2D_prev, par2D, axis=1), np.append(err2D_prev, err2D, axis=1), scDir, scanNoThis)
+                            thisScan.plotAlts = useAlts
 
                     elif sameScanAsBefore:
                         logging.info('{}: Adding data to same scan'.format(fn))
@@ -1018,8 +1072,8 @@ def scan_parse(dataFolder, savePath,
                                 if RT or debugRT:
                                     print('\nInitializing scan #{} (scan start: {})'.format(scanNoThis, Time[0, 0]))
                                 par2D_prev, par2D, err2D_prev, err2D = fix_dimensions(par2D_prev, par2D, err2D_prev, err2D)
-                                scDir = currentScDir if currentScDir != 'stat' else currentScDirElev
                                 thisScan = Scan(np.append(Time_prev, Time, axis=1), np.append(par1D_prev, par1D, axis=0), np.append(par2D_prev, par2D, axis=1), np.append(err2D_prev, err2D, axis=1), scDir, scanNoThis)
+                                thisScan.plotAlts = useAlts
 
                     # save current data for next loop
                     lastAzim = currentAzim
@@ -1127,7 +1181,7 @@ if __name__ == "__main__":
     if os.path.isdir(savePath):
         scanNos = [fn[-7:-4] for fn in os.listdir(savePath) if '.png' in fn]
         if not len(scanNos) == 0:
-            startAt = str(int(max(scanNos)) + 1)
+            startAt = str(int(max(scanNos)))  # will overwrite the last plot, which might be incomplete
             defString = startAt + ' (inferred from files in plot folder)'
     startAtOverride = raw_input('\n4/5: Start plotting from scan no. or time HH:MM [default: scan no. ' + defString + '] >> ')
     if startAtOverride == '0':
@@ -1148,8 +1202,9 @@ if __name__ == "__main__":
                                    '   - Scan speed: {} deg/s\n'.format(scanSpeedDegPerSec) +
                                    '   - Integration period (GUISDAP): {} s\n'.format(IPsec) +
                                    '   - Scan width: {} deg\n'.format(scanWidth) +
+                                   '   - Altitude lines: {}\n'.format(' '.join(map(str, alts))) +
                                    '   - Remove data where error > |value|: {}\n'.format({True: 'yes', False: 'no'}[removeLargeErrs]) +
-                                   '   - Altitude lines: {}\n '.format(' '.join(map(str, alts))) +
+                                   '   - Realtime plotting: {}\n'.format({True: 'yes', False: 'no'}[RT]) +
                                    '\nAccept these defaults and proceed to plotting? [y/n, default yes] >> ')
     if additionalSettings in ['n', 'no']:
 
@@ -1168,14 +1223,24 @@ if __name__ == "__main__":
         if scanWidthOverride:
             scanWidth = float(scanWidthOverride)
 
-        # input whether to remove data where error > |value|
-        removeLargeErrs_override = raw_input('\nRemove data where error > |value|? [y/n, default {}] >> '.format({True: 'yes', False: 'no'}[removeLargeErrs]))
-        removeLargeErrs = True if removeLargeErrs_override in ['y', 'yes'] else removeLargeErrs
-
         # input altitude lines
         altsOverride = raw_input('\nDraw lines at which altitudes? [space-separated list of numbers, blank for default ({}), single space to disable] >> '.format(' '.join(map(str, alts))))
         if altsOverride:
             alts = map(int, altsOverride.split())
+
+        # input whether to remove data where error > |value|
+        removeLargeErrs_override = raw_input('\nRemove data where error > |value|? [y/n, default {}] >> '.format({True: 'yes', False: 'no'}[removeLargeErrs]))
+        if removeLargeErrs_override in ['y', 'yes']:
+            removeLargeErrs = True
+        elif removeLargeErrs_override in ['n', 'no']:
+            removeLargeErrs = False
+
+        # input to switch realtime plotting
+        RT_override = raw_input('\nRealtime plotting? [y/n, default {}] >> '.format({True: 'yes', False: 'no'}[RT]))
+        if RT_override in ['y', 'yes']:
+            RT = True
+        elif RT_override in ['n', 'no']:
+            RT = False
 
     defScanSpeedPerIP = scanSpeedDegPerSec*IPsec  # default scan speed in degrees per integration period. Used to assist in rotating flat-projection plots
 
