@@ -651,7 +651,10 @@ class Scan(object):
         if ((RT or debugRT) and not self.finished) or onlyDoScanNo is not None:
             plt.pause(0.001)
 
-    def plot_overlay(self, mapObj, ax=None, data='Ne', altLines=[], radarLoc=[78.153, 16.029, 0.438], removeLargeErrs=False, clims=None, cmap=None, logMap=None, flatProjection=False, defScanSpeedPerIP=1.0*3.2, **kwargs):
+    def plot_overlay(self, mapObj, ax=None, data='Ne', altLines=None, radarLoc=None, removeLargeErrs=False, clims=None, cmap=None, logMap=None, flatProjection=False, defScanSpeedPerIP=1.0*3.2, **kwargs):
+
+        altLines = altLines or []
+        radarLoc = radarLoc or [78.153, 16.029, 0.438]
 
         # input handling: data
         if data is 'Ne':
@@ -834,9 +837,12 @@ def fix_dimensions(par2D, new_par2D, err2D, new_err2D):
 
 def scan_parse(dataFolder, savePath,
                doPlot=False, latestImagePath=None, onlyDoScanNo=None, startAt=None, removeLargeErrs=False, RT=False, RT_replotAfterScan=True,
-               scanWidth=120, defScanSpeedPerIP=0.62*3, alts=[250, 500], radarLoc=[78.153, 16.029, 0.438], mapWidth=1.8e6, figSize=72,
+               scanWidth=120, defScanSpeedPerIP=0.62*3, alts=None, radarLoc=None, mapWidth=1.8e6, figSize=72,
                debugRT=False):
     '''docstring'''
+
+    alts = alts or [250, 500]
+    radarLoc = radarLoc or [78.153, 16.029, 0.438]
 
     oldfiles = set([])  # already loaded data files
     currentScDir = None   # current scan direction
