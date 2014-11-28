@@ -661,8 +661,8 @@ class Scan(object):
                         break
 
                 left, right = dirs if self.scDir == 'elev decr' else dirs[::-1]
-                self.axes[i+8].text(0, -0.25, left, ha='left', fontweight='bold', transform=self.axes[8].transAxes)
-                self.axes[i+8].text(1, -0.25, right, ha='right', fontweight='bold', transform=self.axes[8].transAxes)
+                self.axes[i+8].text(0, -0.25, left, ha='left', fontweight='bold', transform=self.axes[i+8].transAxes)
+                self.axes[i+8].text(1, -0.25, right, ha='right', fontweight='bold', transform=self.axes[i+8].transAxes)
 
         self.elScanDirectionPlotted = True
 
@@ -893,7 +893,7 @@ def scan_parse(dataFolder, savePath,
                debugRT=False):
     '''docstring'''
 
-    alts = alts or [250, 500]
+    alts = [250, 500] if alts is None else alts
     radarLoc = radarLoc or [78.153, 16.029, 0.438]
     startAt = '1' if onlyDoScanNo else startAt
 
@@ -1183,8 +1183,12 @@ if __name__ == "__main__":
     if os.path.isdir(savePath):
         scanNos = [fn[-7:-4] for fn in os.listdir(savePath) if '.png' in fn]
         if not len(scanNos) == 0:
-            startAt = str(int(max(scanNos)))  # will overwrite the last plot, which might be incomplete
-            defString = startAt + ' (inferred from files in plot folder)'
+            try:
+                startAt = str(int(max(scanNos)))  # will overwrite the last plot, which might be incomplete
+                defString = startAt + ' (inferred from files in plot folder)'
+            except:
+                startAt = '1'
+                defString = '1 (unable to parse .png filenames in plot folder)'
     startAtOverride = raw_input('\n4/5: Start plotting from scan no. or time HH:MM [default: scan no. ' + defString + '] >> ')
     if startAtOverride == '0':
         startAt = '1'
