@@ -921,7 +921,7 @@ def scan_parse(dataFolder, savePath,
                     staticPeriod = currentScDir == 'stat' and lastScDir in ['stat', None] and currentScDirElev == 'stat' and lastScDirElev in ['stat', None]
                     startOfVeryFirstScan = (currentScDir in ['cw', 'ccw'] and lastScDir is None) or (currentScDirElev in ['elev incr', 'elev decr'] and lastScDirElev is None)
                     endOfStaticPeriod = lastScDir == 'stat' and lastScDirElev == 'stat' and (currentScDir in ['cw', 'ccw'] or currentScDirElev in ['elev incr', 'elev decr'])
-                    sameScanAsBefore = (lastScDir == currentScDir and lastScDir in ['cw', 'ccw']) or (currentScDir == 'stat' and lastScDirElev == currentScDirElev and lastScDirElev in ['elev incr', 'elev decr'])
+                    sameScanAsBefore = (lastScDir == currentScDir and lastScDir in ['cw', 'ccw']) or (lastScDir == 'stat' and currentScDir == 'stat' and lastScDirElev == currentScDirElev and lastScDirElev in ['elev incr', 'elev decr'])
                     endOfScan_newScan = (currentScDir in ['cw', 'ccw'] or currentScDirElev in ['elev incr', 'elev decr']) and (lastScDir in ['cw', 'ccw'] or lastScDirElev in ['elev incr', 'elev decr']) and (currentScDir != lastScDir or currentScDirElev != lastScDirElev)
                     endOfScan_static = currentScDir == 'stat' and currentScDirElev == 'stat' and (lastScDir in ['cw', 'ccw'] ^ lastScDirElev in ['elev incr', 'elev decr'])
 
