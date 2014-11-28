@@ -398,13 +398,13 @@ class Scan(object):
                 vertFlat = 'top'
 #                text_alignment_Flat = (0.5, 1)
                 angleFlat = -30
-                sFlat = '    ' + str(alt) + '$\,$km'
+                sFlat = str(alt)
             else:
                 horFlat = 'center'
                 vertFlat = 'top'
 #                text_alignment_Flat = (0.5, 1)
                 angleFlat = 30
-                sFlat = str(alt) + '$\,$km' + '         '
+                sFlat = str(alt)
 
             # initiate dict item for this alt
             try:
@@ -418,7 +418,7 @@ class Scan(object):
                 for _ax in self.axes[0:4]:
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=2.5, color='w', ax=_ax)[0])
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=1.5, color='k', ax=_ax)[0])
-                    self.plottedAlts[alt].append(_ax.text(x[0], y[0], s='  ESR scan at ' + str(alt) + '$\,$km', horizontalalignment='left', verticalalignment=vert, path_effects=[pe.Stroke(linewidth=3, foreground='w'), pe.Normal()]))
+                    self.plottedAlts[alt].append(_ax.text(x[0], y[0], s=' ' + str(alt) + 'ESR scan at $\,$km ', horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=3, foreground='w'), pe.Normal()]))
 
                 for _ax in self.axes[4:8]:
                     if self.scDir not in ['elev incr', 'elev decr']:
@@ -569,7 +569,7 @@ class Scan(object):
 
             # small plot "titles"
             for ax in self.axes[4:8]:
-                ax.text(0.5, 1.01, u'Projected to 30\u00B0 elevation', horizontalalignment='center', verticalalignment='bottom', fontsize='medium', transform=ax.transAxes)
+                ax.set_title(u'Projected to 30\u00B0 elevation')
 
             # uncomment to change map background from white to something else
 #            for ax in self.axes[0:8]:
@@ -632,7 +632,7 @@ class Scan(object):
             self.axes[i+8].set_xlabel('Flat ground distance [km]')
             self.axes[i+8].set_ylabel('Altitude [km]')
             self.axes[i+8].grid('on')
-            self.axes[i+8].set_title('Elevation scan', fontsize='medium')
+            self.axes[i+8].set_title('Elevation scan')
 
             # show cardinal directions on elevation scans
             if self.scDir in ['elev incr', 'elev decr'] and not self.elScanDirectionPlotted:
