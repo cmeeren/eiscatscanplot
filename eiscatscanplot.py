@@ -418,7 +418,7 @@ class Scan(object):
                 for _ax in self.axes[0:4]:
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=2.5, color='w', ax=_ax)[0])
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=1.5, color='k', ax=_ax)[0])
-                    self.plottedAlts[alt].append(_ax.text(x[0], y[0], s=str(alt) + '$\,$km', horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=3, foreground='w'), pe.Normal()]))
+                    self.plottedAlts[alt].append(_ax.text(x[0], y[0], s='  ESR scan at ' + str(alt) + '$\,$km', horizontalalignment='left', verticalalignment=vert, path_effects=[pe.Stroke(linewidth=3, foreground='w'), pe.Normal()]))
 
                 for _ax in self.axes[4:8]:
                     if self.scDir not in ['elev incr', 'elev decr']:
@@ -554,12 +554,14 @@ class Scan(object):
                 self.map.drawcoastlines(linewidth=0.5, color="k", ax=ax)
 
                 # draw rocket tracks
-                self.map.plot(rocket_track[:, 4], rocket_track[:, 3], latlon=True, ax=ax, color='k', linewidth=2, path_effects=[pe.withStroke(foreground='w', linewidth=4)])
-                for timeafterlaunch in range(0, 1000, 100):
+                self.map.plot(rocket_track[:, 4], rocket_track[:, 3], latlon=True, ax=ax, color='r', linewidth=2, path_effects=[pe.withStroke(foreground='w', linewidth=4)])
+                for timeafterlaunch in range(0, 1001, 100):
                     row = rocket_track[rocket_track[:, 0] == timeafterlaunch, :]
                     row = row.flatten()
                     x, y = self.map(row[4], row[3])
-                    ax.annotate(s=str(int(row[0])), xy=(x, y), xycoords='data', xytext=(-25, 0), textcoords='offset points', path_effects=[pe.withStroke(foreground='w', linewidth=3)])
+                    ax.annotate(s=str(int(row[0])) + '$\,$s', xy=(x, y), xycoords='data', xytext=(-2, 0), textcoords='offset points', ha='right', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
+                    if timeafterlaunch == 200:
+                        ax.annotate(s='CAPER\ntrajectory', xy=(x, y), xycoords='data', xytext=(-50, 0), textcoords='offset points', ha='right', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
 
             # draw inivible coastlines in flat plots
             for ax in self.axes[4:8]:
