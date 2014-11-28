@@ -911,7 +911,7 @@ def scan_parse(dataFolder, savePath,
                     startOfVeryFirstScan = (currentScDir in ['cw', 'ccw'] and lastScDir is None) or (currentScDirElev in ['elev incr', 'elev decr'] and lastScDirElev is None)
                     endOfStaticPeriod = lastScDir == 'stat' and lastScDirElev == 'stat' and (currentScDir in ['cw', 'ccw'] or currentScDirElev in ['elev incr', 'elev decr'])
                     sameScanAsBefore = (lastScDir == currentScDir and lastScDir in ['cw', 'ccw']) or (currentScDir == 'stat' and lastScDirElev == currentScDirElev and lastScDirElev in ['elev incr', 'elev decr'])
-                    endOfScan_newScan = (lastScDir != currentScDir and lastScDir in ['cw', 'ccw'] and currentScDir in ['cw', 'ccw']) or (currentScDir == 'stat' and lastScDirElev != currentScDirElev and lastScDirElev in ['elev incr', 'elev decr'] and currentScDirElev in ['elev incr', 'elev decr'])
+                    endOfScan_newScan = (currentScDir != 'stat' or currentScDirElev != 'stat') and (lastScDir != 'stat' or lastScDirElev != 'stat')
                     endOfScan_static = currentScDir == 'stat' and currentScDirElev == 'stat' and (lastScDir in ['cw', 'ccw'] ^ lastScDirElev in ['elev incr', 'elev decr'])
 
 #                    # old control logics commented out below, will only detect azimuthal scans
