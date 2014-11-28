@@ -882,6 +882,7 @@ def scan_parse(dataFolder, savePath,
 
     alts = alts or [250, 500]
     radarLoc = radarLoc or [78.153, 16.029, 0.438]
+    startAt = '1' if onlyDoScanNo else startAt
 
     oldfiles = set([])  # already loaded data files
     currentScDir = None   # current scan direction
