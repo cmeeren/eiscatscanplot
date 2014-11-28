@@ -1186,8 +1186,9 @@ if __name__ == "__main__":
                                    '   - Scan speed: {} deg/s\n'.format(scanSpeedDegPerSec) +
                                    '   - Integration period (GUISDAP): {} s\n'.format(IPsec) +
                                    '   - Scan width: {} deg\n'.format(scanWidth) +
+                                   '   - Altitude lines: {}\n'.format(' '.join(map(str, alts))) +
                                    '   - Remove data where error > |value|: {}\n'.format({True: 'yes', False: 'no'}[removeLargeErrs]) +
-                                   '   - Altitude lines: {}\n '.format(' '.join(map(str, alts))) +
+                                   '   - Realtime plotting: {}\n'.format({True: 'yes', False: 'no'}[RT]) +
                                    '\nAccept these defaults and proceed to plotting? [y/n, default yes] >> ')
     if additionalSettings in ['n', 'no']:
 
@@ -1206,14 +1207,24 @@ if __name__ == "__main__":
         if scanWidthOverride:
             scanWidth = float(scanWidthOverride)
 
-        # input whether to remove data where error > |value|
-        removeLargeErrs_override = raw_input('\nRemove data where error > |value|? [y/n, default {}] >> '.format({True: 'yes', False: 'no'}[removeLargeErrs]))
-        removeLargeErrs = True if removeLargeErrs_override in ['y', 'yes'] else removeLargeErrs
-
         # input altitude lines
         altsOverride = raw_input('\nDraw lines at which altitudes? [space-separated list of numbers, blank for default ({}), single space to disable] >> '.format(' '.join(map(str, alts))))
         if altsOverride:
             alts = map(int, altsOverride.split())
+
+        # input whether to remove data where error > |value|
+        removeLargeErrs_override = raw_input('\nRemove data where error > |value|? [y/n, default {}] >> '.format({True: 'yes', False: 'no'}[removeLargeErrs]))
+        if removeLargeErrs_override in ['y', 'yes']:
+            removeLargeErrs = True
+        elif removeLargeErrs_override in ['n', 'no']:
+            removeLargeErrs = False
+
+        # input to switch realtime plotting
+        RT_override = raw_input('\nRealtime plotting? [y/n, default {}] >> '.format({True: 'yes', False: 'no'}[RT]))
+        if RT_override in ['y', 'yes']:
+            RT = True
+        elif RT_override in ['n', 'no']:
+            RT = False
 
     defScanSpeedPerIP = scanSpeedDegPerSec*IPsec  # default scan speed in degrees per integration period. Used to assist in rotating flat-projection plots
 
