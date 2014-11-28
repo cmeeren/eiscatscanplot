@@ -665,10 +665,6 @@ class Scan(object):
         else:
             self.plot_alts(rotFlat=[-smallPlotRotAngle, radarLoc[0], radarLoc[1]])
 
-        # fix aspect problems if no altitude levels are plotted (by plotting an invisible dot)
-        if not self.plottedAlts:
-            self.map.plot(0, 0, alpha=0, ax=self.axes[4])
-
         # adjust limits of flat-projection plots
         ymin = self.map.llcrnry
         ymax = self.map.urcrnry
