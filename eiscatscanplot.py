@@ -616,7 +616,7 @@ class Scan(object):
             self.axes[i+8].set_xlim((-800, 800))
             self.axes[i+8].set_ylim((100, 700))
             self.axes[i+8].set_yticks([200, 400, 600])
-            self.axes[8].set_xlabel('Ground distance (positive when elev < 90) [km]')
+            self.axes[8].set_xlabel('SOUTH     Ground distance [km]     NORTH')
             self.axes[8].set_ylabel('Altitude [km]')
             self.axes[i+8].grid('on')
             self.axes[i+8].set_title('Elevation scan (for meridional scans)', fontsize='medium')
