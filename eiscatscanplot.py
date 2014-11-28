@@ -471,7 +471,7 @@ class Scan(object):
                 except AttributeError:  # Probably a Text object
                     pass
 
-    def plot(self):
+    def plot(self, alts):
 
         # for some reason, plotting only two beams doesn't work...
         if len(self.Az) < 3:
@@ -915,6 +915,8 @@ def scan_parse(dataFolder, savePath,
                     currentScDirElev = scan_dir_elev(currentElev, lastElev)
                     logging.debug('currentAzim = {} | lastAzim = {} | currentScDir = {} | lastScDir = {} | currentElev = {} | lastElev = {} | currentScDirElev = {} | lastScDirElev = {} | scanNoThis = {}'.format(currentAzim, lastAzim, currentScDir, lastScDir, currentElev, lastElev, currentScDirElev, lastScDirElev, scanNoThis))
 
+
+
                     if Time[0, 0].time() < startTime:
                         startAtScanNo = scanNoThis + 1
 
@@ -949,6 +951,13 @@ def scan_parse(dataFolder, savePath,
                     if sum(controlList) != 1:
                         raise ScanDetectionError('none or >1 of control logics are True: {}'.format(controlList))
 
+                    # remove altitude lines if elevation-only scan
+                    scDir = currentScDir if currentScDir != 'stat' else currentScDirElev
+                    if scDir in ['elev incr', 'elev decr']:
+                        useAlts = []
+                    else:
+                        useAlts = alts
+
                     #################################################
                     # DETERMINE WHAT GETS GONE WITH THE LOADED DATA #
                     #################################################
@@ -968,7 +977,6 @@ def scan_parse(dataFolder, savePath,
                             if RT or debugRT:
                                 print('\nInitializing scan #{} (scan start: {})'.format(scanNoThis, Time[0, 0]))
                             par2D_prev, par2D, err2D_prev, err2D = fix_dimensions(par2D_prev, par2D, err2D_prev, err2D)
-                            scDir = currentScDir if currentScDir != 'stat' else currentScDirElev
                             thisScan = Scan(np.append(Time_prev, Time, axis=1), np.append(par1D_prev, par1D, axis=0), np.append(par2D_prev, par2D, axis=1), np.append(err2D_prev, err2D, axis=1), scDir, scanNoThis)
 
                     elif sameScanAsBefore:
@@ -976,7 +984,7 @@ def scan_parse(dataFolder, savePath,
                         if not skipThisScan:
                             thisScan.add_data(Time, par1D, par2D, err2D)
                             if debugRT and doPlot:
-                                thisScan.plot()
+                                thisScan.plot(alts=useAlts)
 
                     elif endOfScan_newScan or endOfScan_static:
                         if endOfScan_newScan:
@@ -990,7 +998,7 @@ def scan_parse(dataFolder, savePath,
                                 print('Closing realtime scan and replotting')
                                 thisScan.closeFig()
                             if doPlot:
-                                thisScan.plot()
+                                thisScan.plot(alts=useAlts)
                                 thisScan.saveFig(latestImagePath=latestImagePath)
                                 if not doOnlyThisScan:
                                     thisScan.closeFig()
@@ -1007,7 +1015,6 @@ def scan_parse(dataFolder, savePath,
                                 if RT or debugRT:
                                     print('\nInitializing scan #{} (scan start: {})'.format(scanNoThis, Time[0, 0]))
                                 par2D_prev, par2D, err2D_prev, err2D = fix_dimensions(par2D_prev, par2D, err2D_prev, err2D)
-                                scDir = currentScDir if currentScDir != 'stat' else currentScDirElev
                                 thisScan = Scan(np.append(Time_prev, Time, axis=1), np.append(par1D_prev, par1D, axis=0), np.append(par2D_prev, par2D, axis=1), np.append(err2D_prev, err2D, axis=1), scDir, scanNoThis)
 
                     # save current data for next loop
@@ -1030,7 +1037,7 @@ def scan_parse(dataFolder, savePath,
                 # if realtime, plot what we currently have
                 if (RT or doOnlyThisScan) and not skipThisScan:
                     logging.info('End of list with new files. Plotting current data...')
-                    thisScan.plot()
+                    thisScan.plot(alts=useAlts)
 
                 # finished processing previously loaded files, look for more (if RT) or quit
                 if RT or debugRT:
@@ -1040,7 +1047,7 @@ def scan_parse(dataFolder, savePath,
                     if not skipThisScan:
                         thisScan.finished = True
                         if doPlot:
-                            thisScan.plot()
+                            thisScan.plot(alts=useAlts)
                             thisScan.saveFig(latestImagePath=latestImagePath)
                             thisScan.closeFig()
                         else:
@@ -1060,7 +1067,7 @@ def scan_parse(dataFolder, savePath,
             thisScan.finished = True
             thisScan.closeFig()
         if doPlot:
-            thisScan.plot()
+            thisScan.plot(alts=useAlts)
             thisScan.saveFig(latestImagePath=latestImagePath)
             thisScan.closeFig()
         else:
