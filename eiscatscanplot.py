@@ -556,7 +556,7 @@ class Scan(object):
 
             # small plot "titles"
             for ax in self.axes[4:8]:
-                ax.text(0.5, 1.01, u'Projected to 30\u00B0 elevation', horizontalalignment='center', verticalalignment='bottom', fontsize='medium', transform=ax.transAxes)
+                ax.set_title(u'Projected to 30\u00B0 elevation')
 
             # uncomment to change map background from white to something else
 #            for ax in self.axes[0:8]:
@@ -619,7 +619,7 @@ class Scan(object):
             self.axes[i+8].set_xlabel('Flat ground distance [km]')
             self.axes[i+8].set_ylabel('Altitude [km]')
             self.axes[i+8].grid('on')
-            self.axes[i+8].set_title('Elevation scan', fontsize='medium')
+            self.axes[i+8].set_title('Elevation scan')
 
             # show cardinal directions on elevation scans
             if self.scDir in ['elev incr', 'elev decr'] and not self.elScanDirectionPlotted:
