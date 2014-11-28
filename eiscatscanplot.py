@@ -748,7 +748,7 @@ class Scan(object):
     def saveFig(self, latestImagePath=None):
 
         if self.fig is not None:
-            fn = '{0}-{1}_{2}_scan{3:03d}.png'.format(self.tStart[0].strftime('%Y-%m-%d_%H%M'), self.tEnd[-1].strftime('%H%M'), self.scDir, self.scNo)
+            fn = '{0}-{1}_{2}_scan{3:03d}.png'.format(self.tStart[0].strftime('%Y-%m-%d_%H%M'), self.tEnd[-1].strftime('%H%M'), self.scDir.replace(' ', '_'), self.scNo)
             saveTo = os.path.abspath(os.path.expanduser(savePath))
             if not os.path.isdir(saveTo):
                 os.makedirs(saveTo)
