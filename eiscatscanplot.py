@@ -14,6 +14,7 @@ import os
 from os.path import isfile, join
 import re
 import logging
+import datetime as dt
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -832,7 +833,7 @@ def fix_dimensions(par2D, new_par2D, err2D, new_err2D):
 
 
 def scan_parse(dataFolder, savePath,
-               doPlot=False, latestImagePath=None, onlyDoScanNo=None, startAtScanNo=None, removeLargeErrs=False, RT=False, RT_replotAfterScan=True,
+               doPlot=False, latestImagePath=None, onlyDoScanNo=None, startAt=None, removeLargeErrs=False, RT=False, RT_replotAfterScan=True,
                scanWidth=120, defScanSpeedPerIP=0.62*3, alts=[250, 500], radarLoc=[78.153, 16.029, 0.438], mapWidth=1.8e6, figSize=72,
                debugRT=False):
     '''docstring'''
@@ -857,6 +858,18 @@ def scan_parse(dataFolder, savePath,
 
     # list to save scans to if not plotting
     allScans = []
+
+    # find out which scan no / time we should start at
+    if startAt is not None and ':' in startAt:
+        startHour, startMinute = map(int, startAt.split(':'))
+        startTime = dt.time(startHour, startMinute)
+        startAtScanNo = 1
+    elif startAt is not None:
+        startAtScanNo = int(startAt)
+        startTime = dt.time(0, 0)
+    else:
+        startAtScanNo = 1
+        startTime = dt.time(0, 0)
 
     try:
         while True:
@@ -900,7 +913,10 @@ def scan_parse(dataFolder, savePath,
                     currentScDir = scan_dir(currentAzim, lastAzim)
                     currentElev = par1D[0, 1]
                     currentScDirElev = scan_dir_elev(currentElev, lastElev)
-                    logging.debug('currentAzim = {} | lastAzim = {} | currentScDir = {} | lastScDir = {} | currentElev = {} | lastElev = {} | currentScDirElev = {} | scanNoThis = {}'.format(currentAzim, lastAzim, currentScDir, lastScDir, currentElev, lastElev, currentScDirElev, scanNoThis))
+                    logging.debug('currentAzim = {} | lastAzim = {} | currentScDir = {} | lastScDir = {} | currentElev = {} | lastElev = {} | currentScDirElev = {} | lastScDirElev = {} | scanNoThis = {}'.format(currentAzim, lastAzim, currentScDir, lastScDir, currentElev, lastElev, currentScDirElev, lastScDirElev, scanNoThis))
+
+                    if Time[0, 0].time() < startTime:
+                        startAtScanNo = scanNoThis + 1
 
                     # logic to determine if this scan should be plotted
                     skipThisScan = (onlyDoScanNo is not None and scanNoThis != onlyDoScanNo) or (startAtScanNo is not None and scanNoThis < startAtScanNo)
@@ -924,6 +940,9 @@ def scan_parse(dataFolder, savePath,
 #                    sameScanAsBefore = lastScDir == currentScDir and lastScDir in ['cw', 'ccw']
 #                    endOfScan_newScan = lastScDir != currentScDir and lastScDir in ['cw', 'ccw'] and currentScDir in ['cw', 'ccw']
 #                    endOfScan_static = lastScDir != currentScDir and lastScDir in ['cw', 'ccw'] and currentScDir == 'stat'
+
+                    if (endOfScan_newScan or startOfVeryFirstScan) and Time[-1, -1].time() < startTime:
+                        skipNextScan = True
 
                     # check that only one of the above is True
                     controlList = [noScanYet, staticPeriod, startOfVeryFirstScan, endOfStaticPeriod, sameScanAsBefore, endOfScan_newScan, endOfScan_static]
@@ -1086,19 +1105,19 @@ if __name__ == "__main__":
     latestImagePath = raw_input('\n3/5: Maintain a "latest scan" image file somewhere? [full path and filename, empty to disable] >> ')
 
     # input which scan to start at
-    startAtScanNo = 1
+    startAt = '1'
     defString = '1'
     # guess from files in savePath
     if os.path.isdir(savePath):
         scanNos = [fn[-7:-4] for fn in os.listdir(savePath) if '.png' in fn]
         if not len(scanNos) == 0:
-            startAtScanNo = int(max(scanNos)) + 1
-            defString = str(startAtScanNo) + ' (inferred from files in plot folder)'
-    startAtScanNoOverride = raw_input('\n4/5: Start plotting from scan no. [default: ' + defString + '] >> ')
-    if startAtScanNoOverride and int(startAtScanNoOverride) == 0:
-        startAtScanNo = 1
-    elif startAtScanNoOverride:
-        startAtScanNo = int(startAtScanNoOverride)
+            startAt = str(int(max(scanNos)) + 1)
+            defString = startAt + ' (inferred from files in plot folder)'
+    startAtOverride = raw_input('\n4/5: Start plotting from scan no. or time HH:MM [default: scan no. ' + defString + '] >> ')
+    if startAtOverride == '0':
+        startAt = '1'
+    elif startAtOverride:
+        startAt = startAtOverride
 
     # the following two constants are only used for aesthetic purposes in realtime plots
     # (saved figures will be correct anyway)
@@ -1145,7 +1164,7 @@ if __name__ == "__main__":
     defScanSpeedPerIP = scanSpeedDegPerSec*IPsec  # default scan speed in degrees per integration period. Used to assist in rotating flat-projection plots
 
     scan_parse(dataFolder=dataFolder, savePath=savePath, doPlot=True, latestImagePath=latestImagePath, RT=RT,
-               onlyDoScanNo=onlyDoScanNo, startAtScanNo=startAtScanNo, removeLargeErrs=removeLargeErrs, RT_replotAfterScan=RT_replotAfterScan,
+               onlyDoScanNo=onlyDoScanNo, startAt=startAt, removeLargeErrs=removeLargeErrs, RT_replotAfterScan=RT_replotAfterScan,
                scanWidth=scanWidth, defScanSpeedPerIP=defScanSpeedPerIP, alts=alts, radarLoc=radarLoc, mapWidth=mapWidth, figSize=figSize,
                debugRT=debugRT)
 
