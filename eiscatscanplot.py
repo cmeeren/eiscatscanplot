@@ -648,8 +648,8 @@ class Scan(object):
                         break
 
                 left, right = dirs if self.scDir == 'elev decr' else dirs[::-1]
-                self.axes[i+8].text(0, -0.25, left, ha='left', fontweight='bold', transform=self.axes[8].transAxes)
-                self.axes[i+8].text(1, -0.25, right, ha='right', fontweight='bold', transform=self.axes[8].transAxes)
+                self.axes[i+8].text(0, -0.25, left, ha='left', fontweight='bold', transform=self.axes[i+8].transAxes)
+                self.axes[i+8].text(1, -0.25, right, ha='right', fontweight='bold', transform=self.axes[i+8].transAxes)
 
         self.elScanDirectionPlotted = True
 
