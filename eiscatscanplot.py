@@ -27,7 +27,7 @@ from time import sleep
 
 plt.ioff()  # performance impact is negligible, but when plotting many plots, this allows to plot and save without showing figure
 np.seterr(invalid='ignore', divide='ignore')
-plt.rcParams['font.size'] = 10
+plt.rcParams['font.size'] = 12
 
 #==============================================================================
 # Some defaults
@@ -549,7 +549,7 @@ class Scan(object):
 
             # small plot "titles"
             for ax in self.axes[4:8]:
-                ax.text(0.5, 1.01, u'Projected to 30\u00B0 elevation and rotated (for combined az/el scans)', horizontalalignment='center', verticalalignment='bottom', fontsize='medium', transform=ax.transAxes)
+                ax.text(0.5, 1.01, u'Projected to 30\u00B0 elevation', horizontalalignment='center', verticalalignment='bottom', fontsize='medium', transform=ax.transAxes)
 
             # uncomment to change map background from white to something else
 #            for ax in self.axes[0:8]:
@@ -609,8 +609,8 @@ class Scan(object):
             self.axes[i+8].set_xlim((-800, 800))
             self.axes[i+8].set_ylim((100, 700))
             self.axes[i+8].set_yticks([200, 400, 600])
-            self.axes[8].set_xlabel('Ground distance (positive when elev < 90) [km]')
-            self.axes[8].set_ylabel('Altitude [km]')
+            self.axes[i+8].set_xlabel('Flat ground distance [km]')
+            self.axes[i+8].set_ylabel('Altitude [km]')
             self.axes[i+8].grid('on')
             self.axes[i+8].set_title('Elevation scan (for meridional scans)', fontsize='medium')
 
@@ -646,7 +646,7 @@ class Scan(object):
             self.mainTitle.set_text(mainTitleStr)
 
         if self.byline is None:
-            self.byline = self.fig.text(0.98, 0.98, 'Plotting software by Christer van der Meeren\ncmeeren@gmail.com\nCode available at https://github.com/cmeeren/eiscatscanplot', ha='right', va='top')
+            self.byline = self.fig.text(0.98, 0.98, 'Plotting software by Christer van der Meeren (cmeeren@gmail.com)\nCode available at https://github.com/cmeeren/eiscatscanplot', ha='right', va='top')
 
         # draw/update plot if realtime or only plotting a single scan
         if ((RT or debugRT) and not self.finished) or onlyDoScanNo is not None:
