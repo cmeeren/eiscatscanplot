@@ -912,7 +912,7 @@ def scan_parse(dataFolder, savePath,
                     endOfStaticPeriod = lastScDir == 'stat' and lastScDirElev == 'stat' and (currentScDir in ['cw', 'ccw'] or currentScDirElev in ['elev incr', 'elev decr'])
                     sameScanAsBefore = (lastScDir == currentScDir and lastScDir in ['cw', 'ccw']) or (currentScDir == 'stat' and lastScDirElev == currentScDirElev and lastScDirElev in ['elev incr', 'elev decr'])
                     endOfScan_newScan = (lastScDir != currentScDir and lastScDir in ['cw', 'ccw'] and currentScDir in ['cw', 'ccw']) or (currentScDir == 'stat' and lastScDirElev != currentScDirElev and lastScDirElev in ['elev incr', 'elev decr'] and currentScDirElev in ['elev incr', 'elev decr'])
-                    endOfScan_static = (currentScDir == 'stat' and lastScDir in ['cw', 'ccw']) or (currentScDir == 'stat' and currentScDirElev == 'stat' and lastScDirElev in ['elev incr', 'elev decr'])
+                    endOfScan_static = currentScDir == 'stat' and currentScDirElev == 'stat' and (lastScDir in ['cw', 'ccw'] ^ lastScDirElev in ['elev incr', 'elev decr'])
 
 #                    # old control logics commented out below, will only detect azimuthal scans
 #                    noScanYet = currentScDir is None and lastScDir is None
