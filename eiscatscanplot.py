@@ -398,13 +398,13 @@ class Scan(object):
                 vertFlat = 'top'
 #                text_alignment_Flat = (0.5, 1)
                 angleFlat = -30
-                sFlat = '    ' + str(alt)
+                sFlat = '    ' + str(alt) + '$\,$km'
             else:
                 horFlat = 'center'
                 vertFlat = 'top'
 #                text_alignment_Flat = (0.5, 1)
                 angleFlat = 30
-                sFlat = str(alt) + '         '
+                sFlat = str(alt) + '$\,$km' + '         '
 
             # initiate dict item for this alt
             try:
@@ -418,7 +418,7 @@ class Scan(object):
                 for _ax in self.axes[0:4]:
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=2.5, color='w', ax=_ax)[0])
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=1.5, color='k', ax=_ax)[0])
-                    self.plottedAlts[alt].append(_ax.text(x[0], y[0], s=str(alt), horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=3, foreground='w'), pe.Normal()]))
+                    self.plottedAlts[alt].append(_ax.text(x[0], y[0], s=str(alt) + '$\,$km', horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=3, foreground='w'), pe.Normal()]))
 
                 for _ax in self.axes[4:8]:
                     if self.scDir not in ['elev incr', 'elev decr']:
@@ -434,7 +434,7 @@ class Scan(object):
                 else:
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=2.5, color='w', ax=ax)[0])
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=1.5, color='k', ax=ax)[0])
-                    self.plottedAlts[alt].append(ax.text(x[0], y[0], s=str(alt), horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=2, foreground='w'), pe.Normal()]))
+                    self.plottedAlts[alt].append(ax.text(x[0], y[0], s=str(alt) + '$\,$km', horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=2, foreground='w'), pe.Normal()]))
 
     def update_alts(self, rotFlat=None):
 
