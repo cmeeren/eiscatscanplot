@@ -560,7 +560,7 @@ class Scan(object):
                     row = row.flatten()
                     x, y = self.map(row[4], row[3])
                     self.map.plot(x, y, 'r.', ax=ax, markersize=15)
-                    ax.annotate(s=str(int(row[0])) + '$\,$s', xy=(x, y), xycoords='data', xytext=(-5, 0), textcoords='offset points', ha='right', va='center', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
+                    ax.annotate(s=str(int(row[0])), xy=(x, y), xycoords='data', xytext=(-8, 0), textcoords='offset points', ha='right', va='center', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
                     if timeafterlaunch == 200:
                         ax.annotate(s='CAPER\ntrajectory', xy=(x, y), xycoords='data', xytext=(-50, 0), textcoords='offset points', ha='right', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
 
