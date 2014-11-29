@@ -18,10 +18,10 @@ An example plot is given below.
 Really simple usage
 -------------------
 
-Copy the `.py` files to anywhere on your computer (`__init__.py` is not really needed for the simple usage described below), open a terminal, go to the folder and run the script using
+Copy the `.py` and `.html` files to anywhere on your computer, open a terminal, go to the folder and run the script using
 
     python eiscatscanplot.py
-    
+
 The script will auto-detect the latest 32m folder in the ESR data directory if run at the ESR site (but lets you choose another folder if you wish). You may change a few constants at the top of the script to adjust the script behaviour, but this is generally not needed; you will be asked to provide the important stuff when you run the script (and if you're lucky, the defaults work perfectly fine).
 
 The script will update plots in realtime, and when it detects the end of a scan, it will save the figure and start a new plot.
