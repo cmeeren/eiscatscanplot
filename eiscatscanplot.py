@@ -567,8 +567,8 @@ class Scan(object):
 #        toPlot = [('Ne',  (0, 1e12),     MultipleLocator(base=2e11),     'jet',         False),
         toPlot = [('Ne',  (1e10, 1e12),  LogLocator(subs=range(1, 10)),  'nipy_spectral_pinktop',         True),
                   ('Vi',  (-500, 500),   [-500, -250, 0, 250, 500],      'coolwarm',  False),
-                  ('Te',  (0, 4000),     [0, 1000, 2000, 3000, 4000],    'nipy_spectral_pinktop',         False),
-                  ('Ti',  (0, 3000),     [0, 1000, 2000, 3000],          'nipy_spectral_pinktop',         False)]
+                  ('Te',  (0, 4000),     [0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000],    'nipy_spectral_pinktop',         False),
+                  ('Ti',  (0, 3000),     [0, 500, 1000, 1500, 2000, 2500, 3000],          'nipy_spectral_pinktop',         False)]
 
         for i, e in enumerate(toPlot):
 
