@@ -591,16 +591,16 @@ class Scan(object):
                 self.cbar[i], self.cbarAxis[i] = cbar_right(self.axes[i], leftOffset=0.003, width=0.01, relHeight=1, mappable=pCol, ticks=e[2])
 
             # flat-projection plots
-            pCol = bm_drawCmappedPoly(self.map,
-                                      vertexLons_flat,
-                                      vertexLats_flat,
-                                      data,
-                                      clims=e[1],
-                                      cmap=e[3],
-                                      logMap=e[4],
-                                      rot=[-smallPlotRotAngle, radarLoc[0], radarLoc[1]],
-                                      linewidths=0)
-            self.axes[i+4].add_collection(pCol)
+            if self.scDir in ['cw', 'ccw']:
+                pCol = bm_drawCmappedPoly(self.map,
+                                          vertexLons_flat,
+                                          vertexLats_flat,
+                                          data,
+                                          clims=e[1],
+                                          cmap=e[3],
+                                          logMap=e[4],
+                                          linewidths=0)
+                self.axes[i+4].add_collection(pCol)
 
             # elev plots
             verts = map(zip, vertexX_elev, vertexY_elev)
