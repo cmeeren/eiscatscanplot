@@ -603,26 +603,28 @@ class Scan(object):
                 self.axes[i+4].add_collection(pCol)
 
             # elev plots
-            verts = map(zip, vertexX_elev, vertexY_elev)
-            if e[4]:
-                norm = mpl.colors.LogNorm(vmin=e[1][0], vmax=e[1][1])
-            else:
-                norm = mpl.colors.Normalize(vmin=e[1][0], vmax=e[1][1])
-            pCol = mpl.collections.PolyCollection(verts, array=data, cmap=e[3], norm=norm, linewidths=0)
-            self.axes[i+8].add_collection(pCol)
             self.axes[i+8].set_xlim((-800, 800))
             self.axes[i+8].set_ylim((100, 700))
             self.axes[i+8].set_yticks([200, 400, 600])
             self.axes[i+8].set_xlabel('Flat ground distance [km]')
             self.axes[i+8].set_ylabel('Altitude [km]')
             self.axes[i+8].grid('on')
-            self.axes[i+8].set_title('Elevation scan')
+            self.axes[i+8].set_title('Elevation-only scan')
 
-            # show cardinal directions on elevation scans
-            if self.scDir in ['elev incr', 'elev decr'] and not self.elScanDirectionPlotted:
-                azDir = self.Az[0]
-                if self.scDir == 'elev decr':
-                    azDir += 180
+            if self.scDir in ['elev incr', 'elev decr']:
+                verts = map(zip, vertexX_elev, vertexY_elev)
+                if e[4]:
+                    norm = mpl.colors.LogNorm(vmin=e[1][0], vmax=e[1][1])
+                else:
+                    norm = mpl.colors.Normalize(vmin=e[1][0], vmax=e[1][1])
+                pCol = mpl.collections.PolyCollection(verts, array=data, cmap=e[3], norm=norm, linewidths=0)
+                self.axes[i+8].add_collection(pCol)
+
+                # show cardinal directions on elevation scans
+                if not self.elScanDirectionPlotted:
+                    azDir = self.Az[0]
+                    if self.scDir == 'elev decr':
+                        azDir += 180
 
                 # function to find out if azDir is within 22.5 degrees of some direction
                 az_near = lambda x: np.cos(np.deg2rad(azDir-x)) >= np.cos(np.deg2rad(22.5))
