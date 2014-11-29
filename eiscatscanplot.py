@@ -422,7 +422,7 @@ class Scan(object):
                     self.plottedAlts[alt].append(_ax.text(x[0], y[0], s=' ' + str(alt) + '$\,$km ', horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=3, foreground='w'), pe.Normal()]))
 
                 for _ax in self.axes[4:8]:
-                    if self.scDir not in ['elev incr', 'elev decr']:
+                    if self.scDir not in ['elev incr', 'elev decr']:  # don't plot in flat-projection for elevation scans
                         self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=2.5, color='w', ax=_ax)[0])
                         self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=1.5, color='k', ax=_ax)[0])
                         self.plottedAltsFlat[alt].append(_ax.text(xFlat[0], yFlat[0], s=sFlat, horizontalalignment=horFlat, verticalalignment=vertFlat, rotation=angleFlat, path_effects=[pe.Stroke(linewidth=2, foreground='w'), pe.Normal()]))
