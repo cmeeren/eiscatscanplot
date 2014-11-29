@@ -746,7 +746,7 @@ class Scan(object):
 
         return pCol
 
-    def saveFig(self, latestImagePath=None):
+    def saveFig(self, webAccessFolder='', webAccessFolderExternal=''):
 
         if self.fig is not None:
             fn = '{0}-{1}_{2}_scan{3:03d}.png'.format(self.tStart[0].strftime('%Y-%m-%d_%H%M'), self.tEnd[-1].strftime('%H%M'), self.scDirElev or self.scDir, self.scNo)
@@ -758,16 +758,9 @@ class Scan(object):
                 print('Saved file ' + os.path.join(saveTo, fn))
 #                logging.info('Saved file ' + os.path.join(saveTo, fn))
 
-            # "latest scan" image
-            if latestImagePath:
-                latestImagePath = os.path.abspath(os.path.expanduser(latestImagePath))
-                path = os.path.split(latestImagePath)[0]
-                if not os.path.isdir(path):
-                    os.makedirs(path)
-                shutil.copyfile(os.path.join(saveTo, fn), latestImagePath)
-                if RT or debugRT:
-                    print('Saved file ' + latestImagePath)
-#                    logging.info('Saved file ' + latestImagePath)
+            # make web page for external access
+            if webAccessFolder:
+                make_html(webAccessFolder, webAccessFolderExternal, saveTo)
 
         else:
             logging.warn('Scan #{}: No figure to save (perhaps because number of beams in scan is < 3)'.format(self.scNo))
@@ -836,9 +829,9 @@ def fix_dimensions(par2D, new_par2D, err2D, new_err2D):
 
 
 def scan_parse(dataFolder, savePath,
-               doPlot=False, latestImagePath=None, onlyDoScanNo=None, startAt=None, removeLargeErrs=False, RT=False, RT_replotAfterScan=True,
+               doPlot=False, onlyDoScanNo=None, startAt=None, removeLargeErrs=False, RT=False, RT_replotAfterScan=True,
                scanWidth=120, defScanSpeedPerIP=0.62*3, alts=None, radarLoc=None, mapWidth=1.8e6, figSize=72,
-               debugRT=False):
+               debugRT=False, webAccessFolder='', webAccessFolderExternal=''):
     '''docstring'''
 
     alts = [250, 500] if alts is None else alts
@@ -1011,7 +1004,7 @@ def scan_parse(dataFolder, savePath,
                                 thisScan.closeFig()
                             if doPlot:
                                 thisScan.plot()
-                                thisScan.saveFig(latestImagePath=latestImagePath)
+                                thisScan.saveFig(webAccessFolder, webAccessFolderExternal)
                                 if not doOnlyThisScan:
                                     thisScan.closeFig()
                                 else:  # return scan in addition to plotting if only plotting this scan
@@ -1061,7 +1054,7 @@ def scan_parse(dataFolder, savePath,
                         thisScan.finished = True
                         if doPlot:
                             thisScan.plot()
-                            thisScan.saveFig(latestImagePath=latestImagePath)
+                            thisScan.saveFig(webAccessFolder, webAccessFolderExternal)
                             thisScan.closeFig()
                         else:
                             if doOnlyThisScan:
@@ -1081,7 +1074,7 @@ def scan_parse(dataFolder, savePath,
             thisScan.closeFig()
         if doPlot:
             thisScan.plot()
-            thisScan.saveFig(latestImagePath=latestImagePath)
+            thisScan.saveFig(webAccessFolder, webAccessFolderExternal)
             thisScan.closeFig()
         else:
             if doOnlyThisScan:
@@ -1091,6 +1084,58 @@ def scan_parse(dataFolder, savePath,
         print('Done!')
         return allScans
 
+
+def make_html(webAccessFolder, webAccessFolderExternal, imageFolder):
+    '''htmlInternal and htmlExternal point to the same folder, e.g.
+          internal: /www_kstdev/display/
+          external: http://158.39.70.130/~kstdev/display/
+    '''
+
+    webAccessFolder = os.path.abspath(os.path.expanduser(webAccessFolder))
+    imageFolder = os.path.abspath(os.path.expanduser(imageFolder))
+
+    # local and remote folders where plots are found
+    plotFoldersIn = os.path.join(webAccessFolder, 'eiscatscanplot')
+    plotFoldersIn_external = os.path.join(webAccessFolderExternal, 'eiscatscanplot')
+
+    # create plot directory
+    if not os.path.isdir(plotFoldersIn):
+        os.makedirs(plotFoldersIn)
+
+    # cleanup - remove broken links
+    for brokenLink in [d for d in os.listdir(plotFoldersIn) if os.path.islink(d) and not os.path.lexists(d)]:
+        os.unlink(d)
+
+    # make link from internal plot folder to html internal folder
+    if not os.path.islink(os.path.join(plotFoldersIn, os.path.basename(imageFolder))):
+        os.symlink(imageFolder, os.path.join(plotFoldersIn, os.path.basename(imageFolder)))
+
+#    # Windows test code instead of the two lines above
+#    if os.path.isdir(os.path.join(plotFoldersIn, os.path.basename(imageFolder))):
+#        shutil.rmtree(os.path.join(plotFoldersIn, os.path.basename(imageFolder)))
+#    shutil.copytree(imageFolder, os.path.join(plotFoldersIn, os.path.basename(imageFolder)))
+
+    # read html template code from source file
+    with open('rt_src.html', 'r') as f:
+        s = f.read()
+
+    # make list of files
+    files = [fn for fn in os.listdir(imageFolder) if '.png' in fn]
+
+    # copy latest file to permanent name
+    shutil.copyfile(os.path.join(imageFolder, files[-1]), os.path.join(webAccessFolder, 'ESRlatest.png'))
+
+    files_external = [os.path.join(plotFoldersIn_external, os.path.basename(imageFolder), fn) for fn in files]
+
+    # insert file list and update latest image
+    s = s.replace('[!filenames]', 'filenames = ' + str(files_external))
+    s = s.replace('[!latestImg]', files_external[-1])
+    s = s.replace('[!latestImgPermalink]', os.path.join(webAccessFolderExternal, 'ESRlatest.png'))
+    s = s.replace('[!picFolder]', plotFoldersIn_external)
+
+    # write html page
+    with open(os.path.join(webAccessFolder, 'scans.html'), 'w') as f:
+        f.write(s)
 
 if __name__ == "__main__":
 
@@ -1113,22 +1158,24 @@ if __name__ == "__main__":
 
     savePath = '~/users/eiscatscanplot/plotted/esr_scans_{}'.format(os.path.basename(os.path.normpath(dataFolder)))  # save plotted figures to this path.
 
-    latestImagePath = ''
-    latestImagePathStatus = latestImagePath or 'disabled'
+    webAccessFolder = '/www_kstdev/display/'
+    webAccessFolderExternal = 'http://158.39.70.130/~kstdev/display/'
+#    webAccessFolderExternal = 'file:///C:/www_kstdev/display/'
+    webAccessFolderMsg = '{} --> {}'.format(os.path.join(webAccessFolder, 'scan.html'), os.path.join(webAccessFolderExternal, 'scan.html')) if webAccessFolder else 'disabled'
 
     # guess which scan to start at
     startAt = '1'
     startAtMsg = ''
     # guess from files in savePath
-    if os.path.isdir(savePath):
-        files = [fn for fn in os.listdir(savePath) if '.png' in fn]
+    if os.path.isdir(os.path.abspath(os.path.expanduser(savePath))):
+        files = [fn for fn in os.listdir(os.path.abspath(os.path.expanduser(savePath))) if '.png' in fn]
         if not len(files) == 0:
             try:
                 scanNos = [fn[-7:-4] for fn in files]
                 startAt = str(int(max(scanNos)))  # will overwrite the last plot, which might be incomplete
-                startAtMsg = '(auto-detected)'
+                startAtMsg = ' (auto-detected)'
             except:
-                startAtMsg = '(unable to parse files in plot folder)'
+                startAtMsg = ' (unable to parse files in plot folder)'
 
     scanSpeedDegPerSec = 0.63  # scan speed per second
     IPsec = 6.4  # integration period in seconds
@@ -1137,10 +1184,10 @@ if __name__ == "__main__":
 
     # additional settings
     while True:
-        additionalSettings = raw_input('\nReady to start. The following additional settings may be edited. Scan speed and integration period are only used for beam width realtime plots (saved plots will be correct anyway).\n' +
+        additionalSettings = raw_input('\nReady to start. The following additional settings may be edited.\nScan speed and integration period are only used for beam width\nin realtime plots (saved plots will be correct anyway).\n\n' +
                                        '   1. Save figures to: {}\n'.format(savePath) +
-                                       '   2. Start at (scan no. x or time HH:MM): {}\n'.format(startAt) +
-                                       '   3. Maintain a \'latest scan\' image: {}\n'.format(latestImagePathStatus) +
+                                       '   2. Web access: {}\n'.format(webAccessFolderMsg) +
+                                       '   3. Start at (scan no. x or time HH:MM): {}\n'.format(startAt) +
                                        '   4. Scan speed: {} deg/s\n'.format(scanSpeedDegPerSec) +
                                        '   5. Integration period (GUISDAP): {} s\n'.format(IPsec) +
                                        '   6. Altitude lines: {}\n'.format(' '.join(map(str, alts))) +
@@ -1155,18 +1202,22 @@ if __name__ == "__main__":
             savePath = savePathOverride or savePath
             savePath = os.path.abspath(os.path.expanduser(savePath))
         elif additionalSettings == '2':
+            # 'remote web access to scans
+            webAccessFolderOverride = raw_input('\nLocal folder in which to put the html file\n[default: {}, single space to disable] >> '.format(webAccessFolder))
+            if webAccessFolderOverride == ' ':
+                webAccessFolder = ''
+            else:
+                latestImagePath = webAccessFolderOverride
+                webAccessFolderExternalOverride = raw_input('\nRemote (web) address to the same folder\n[default: {}] >> '.format(webAccessFolderExternal))
+                webAccessFolderExternal = webAccessFolderExternalOverride or webAccessFolderExternal
+            webAccessFolderMsg = '{} --> {}'.format(os.path.join(webAccessFolder, 'scan.html'), os.path.join(webAccessFolderExternal, 'scan.html')) if webAccessFolder else 'disabled'
+        elif additionalSettings == '3':
             # start scan no. or start time
             startAtOverride = raw_input('\nEnter scan number or HH:MM from which to start [default: scan no. {}{}] >> '.format(startAt, startAtMsg))
             if startAtOverride == '0':
                 startAt = '1'
             elif startAtOverride:
                 startAt = startAtOverride
-        elif additionalSettings == '3':
-            # 'latest scan' image
-            latestImagePathOverride = raw_input('\nMaintain a \'latest scan\' image file somewhere? [full path and filename, empty to disable] >> ')
-            if latestImagePathOverride:
-                latestImagePath = latestImagePathOverride
-                latestImagePathStatus = latestImagePath or 'disabled'
         elif additionalSettings == '4':
             # scan speed per sec
             scanSpeedDegPerSecOverride = raw_input('\nScan speed in degrees per second [default {}] >> '.format(scanSpeedDegPerSec))
@@ -1197,9 +1248,9 @@ if __name__ == "__main__":
 
     print('Starting scan parsing')
 
-    scan_parse(dataFolder=dataFolder, savePath=savePath, doPlot=True, latestImagePath=latestImagePath, RT=RT,
+    scan_parse(dataFolder=dataFolder, savePath=savePath, doPlot=True, RT=RT,
                onlyDoScanNo=onlyDoScanNo, startAt=startAt, removeLargeErrs=removeLargeErrs, RT_replotAfterScan=RT_replotAfterScan,
                defScanSpeedPerIP=defScanSpeedPerIP, alts=alts, radarLoc=radarLoc, mapWidth=mapWidth, figSize=figSize,
-               debugRT=debugRT)
+               debugRT=debugRT, webAccessFolder=webAccessFolder, webAccessFolderExternal=webAccessFolderExternal)
 
     raw_input('\nPlotting finished, figures saved to {}. Press Enter to close >> '.format(savePath))

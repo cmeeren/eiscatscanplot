@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<noscript>
+    <meta http-equiv="refresh" content="10">
+</noscript>
+<style>
+    html, body {
+        overflow: hidden;
+        height: 100%;
+        width: 100%;
+        margin:0;
+        padding:0;
+    }
+    div#slide {
+        position: relative;
+    }
+    div#keyWrapper {
+        position: fixed;
+        height: 40px;
+        width: 100%;
+    }
+    div#imageWrapper {
+        position: fixed;
+        top: 40px;
+        bottom: 0;
+        width: 100%;
+        height: 100%;
+    }
+    ul#keys {
+        text-align: left;
+        font-size: 12px;
+        margin: 0;
+        list-style: none;
+        margin: 10px 0;
+    }
+    ul#keys li {
+        display: inline;
+        margin-right: 10px;
+    }
+    ul#keys span.key {
+        border: 1px solid black;
+        padding: 2px;
+        border-radius: 5px;
+        font-family: sans-serif;
+        cursor: pointer;
+    }
+    ul#keys span.key:hover {
+        background-color: yellow;
+    }
+    li#updateMsg, li#noscript {
+        padding: 5px;
+        border: 1px solid black;
+        border-radius: 5px;
+    }
+    li#updateMsg {
+        background-color: lightgreen;
+    }
+    li#noscript {
+        background-color: pink;
+    }
+    img {
+        max-width: 100%;
+        max-height: 100%;
+    }
+</style>
+<script type="text/javascript">
+// list of filenames
+[!filenames]
+
+    var currentSlideNo = 0;
+    var autoUpdate = true;
+
+    window.setInterval('refresh()', 10000);
+    function refresh() {
+        if (autoUpdate) {
+            location.reload();
+        }
+    }
+    
+    // load first slide when body loads
+    window.onload = function() {
+        jumpTo(filenames.length-1);
+    }
+
+    document.onkeydown = checkKey;
+    function checkKey(e) {
+
+        var e = e || window.event;
+
+        if (e.keyCode == '37') { jumpTo(currentSlideNo-1); }  // Left arrow
+        else if (e.keyCode == '39') { jumpTo(currentSlideNo+1); }  // Right arrow
+        else if (e.keyCode == '33') { jumpTo(currentSlideNo-10); }  // Page up
+        else if (e.keyCode == '34') { jumpTo(currentSlideNo+10); }  // Page down
+        else if (e.keyCode == '36') { jumpTo(0); }  // Home
+        else if (e.keyCode == '35') {  jumpTo(filenames.length-1); }  // End
+    }
+
+    function jumpTo(newSlideNo) {
+        
+        // correct index if outside list range
+        if (newSlideNo < 0) { newSlideNo = 0; }
+        if (newSlideNo > filenames.length-1) { newSlideNo = filenames.length-1; }
+        
+        // update image src to new file
+        var img = document.getElementById('image');
+        img.src = filenames[newSlideNo];
+        
+        // update auto-refresh
+        if (newSlideNo != filenames.length-1) {
+            // disable auto-update
+            autoUpdate = false
+            document.getElementById('updateMsg').innerHTML = 'Auto-refresh DISABLED, go to last image to enable';
+            document.getElementById('updateMsg').style.backgroundColor = 'pink';
+        } else {
+            // enable auto-update
+            autoUpdate = true
+            document.getElementById('updateMsg').innerHTML = 'Auto-refreshing every 10 sec';
+            document.getElementById('updateMsg').style.backgroundColor = 'lightgreen';
+        }
+
+        // update currentSlideNo
+        currentSlideNo = newSlideNo
+    }
+    
+    function zoomReset() {
+        document.getElementById('largeFrame').style.visibility = 'hidden';
+        largeImgSourceID = null;
+    }
+    
+    function zoom(caller) {
+        document.getElementById('largeFrame').style.visibility = 'visible';
+        document.getElementById('largeImage').src = 'images/' +  times[currentSlideNo] + '_' + caller.id + '_large.png';
+        largeImgSourceID = caller.id;
+    }
+
+</script>
+</head>
+<body>
+<div id="slide">
+    <div id="keyWrapper">
+        <ul id="keys">
+            <noscript>
+                <li id="noscript">Javascript disabled, controls won't work</li>
+            </noscript>
+            <li><big><strong>Controls:</strong></big></li>
+            <li><span class="key" style="font-family: serif;" onclick="jumpTo(currentSlideNo+1);">&#8594;</span> Next</li>
+            <li><span class="key" style="font-family: serif;" onclick="jumpTo(currentSlideNo-1);">&#8592;</span> Prev</li>
+            <li><span class="key" onclick="jumpTo(0);">HOME</span> first</li>
+            <li><span class="key" onclick="jumpTo(filenames.length-1);">END</span> last</li>
+            <li><span class="key" onclick="jumpTo(currentSlideNo+10);">PGDN</span> +10</li>
+            <li><span class="key" onclick="jumpTo(currentSlideNo-10);">PGUP</span> &#8722;10</li>
+            <li><a href="[!latestImgPermalink]">Permalink to latest image</a></li>
+            <li><a href="[!picFolder]">Pictures folder</a></li>
+            <li id="updateMsg">Auto-refreshing every 10 sec</li>
+        </ul>
+    </div>
+    <div id="imageWrapper">
+        <img id="image" src="file:///C:/www_kstdev/display/eiscatscanplot/esr_scans_2014-02-23_tau0_1@32m/2014-02-23_2042-2046_cw_scan054.png" />
+        <!--[!latestImg]-->
+    </div>
+</div>
+</body>
+</html>
