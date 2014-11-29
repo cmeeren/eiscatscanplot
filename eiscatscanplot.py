@@ -1092,10 +1092,6 @@ def scan_parse(dataFolder, savePath,
         return allScans
 
 
-def overlay_scan(ScanObj):
-    """Docstring here"""
-    pass
-
 if __name__ == "__main__":
 
     # datafolder input
