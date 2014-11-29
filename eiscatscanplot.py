@@ -418,7 +418,7 @@ class Scan(object):
                 for _ax in self.axes[0:4]:
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=2.5, color='w', ax=_ax)[0])
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=1.5, color='k', ax=_ax)[0])
-                    self.plottedAlts[alt].append(_ax.text(x[0], y[0], s=' ESR scan at ' + str(alt) + '$\,$km ', horizontalalignment='left', verticalalignment=vert, path_effects=[pe.Stroke(linewidth=3, foreground='w'), pe.Normal()]))
+                    self.plottedAlts[alt].append(_ax.text(x[0], y[0], s=' ' + str(alt) + '$\,$km ', horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=3, foreground='w'), pe.Normal()]))
 
                 for _ax in self.axes[4:8]:
                     if self.scDir not in ['elev incr', 'elev decr']:
@@ -538,9 +538,6 @@ class Scan(object):
 
             gs_main.update(left=0.035, right=0.96, bottom=0.06, top=0.9, wspace=0.1, hspace=0)
 
-            rocket_track = np.loadtxt('/home/kstdev/users/rocket/CAPER/CAPERtrack.txt', skiprows=8)
-#            rocket_track = np.loadtxt('CAPERtrack.txt', skiprows=8)
-
             # initiate maps
             self.map = Basemap(width=mapWidth,
                                height=mapWidth,
@@ -552,16 +549,6 @@ class Scan(object):
             # draw coastlines
             for ax in self.axes[0:4]:
                 self.map.drawcoastlines(linewidth=0.5, color="k", ax=ax)
-
-                # draw rocket tracks
-                self.map.plot(rocket_track[:, 4], rocket_track[:, 3], latlon=True, ax=ax, color='r', linewidth=2, path_effects=[pe.withStroke(foreground='w', linewidth=4)])
-                for timeafterlaunch in range(0, 1001, 100):
-                    row = rocket_track[rocket_track[:, 0] == timeafterlaunch, :]
-                    row = row.flatten()
-                    x, y = self.map(row[4], row[3])
-                    ax.annotate(s=str(int(row[0])) + '$\,$s', xy=(x, y), xycoords='data', xytext=(-2, 0), textcoords='offset points', ha='right', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
-                    if timeafterlaunch == 200:
-                        ax.annotate(s='CAPER\ntrajectory', xy=(x, y), xycoords='data', xytext=(-50, 0), textcoords='offset points', ha='right', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
 
             # draw inivible coastlines in flat plots
             for ax in self.axes[4:8]:
@@ -581,10 +568,10 @@ class Scan(object):
         # plotting parameters
         #          data   clims          ticks                           colormap       logarithmic colormap
 #        toPlot = [('Ne',  (0, 1e12),     MultipleLocator(base=2e11),     'jet',         False),
-        toPlot = [('Ne',  (1e10, 1e12),  LogLocator(subs=range(1, 10)),  'nipy_spectral',         True),
+        toPlot = [('Ne',  (1e10, 1e12),  LogLocator(subs=range(1, 10)),  'nipy_spectral_pinktop',         True),
                   ('Vi',  (-500, 500),   [-500, -250, 0, 250, 500],      'coolwarm',  False),
-                  ('Te',  (0, 4000),     [0, 1000, 2000, 3000, 4000],    'nipy_spectral',         False),
-                  ('Ti',  (0, 3000),     [0, 1000, 2000, 3000],          'nipy_spectral',         False)]
+                  ('Te',  (0, 4000),     [0, 1000, 2000, 3000, 4000],    'nipy_spectral_pinktop',         False),
+                  ('Ti',  (0, 3000),     [0, 1000, 2000, 3000],          'nipy_spectral_pinktop',         False)]
 
         for i, e in enumerate(toPlot):
 
@@ -1163,18 +1150,13 @@ if __name__ == "__main__":
             print('Folder {} doesn\'t exist, please try again.'.format(dataFolderOverride))
 
     # plot save path input
-    savePath = '/www_kstdev/display/nov2014/esr_scans_{}'.format(os.path.basename(os.path.normpath(dataFolder)))  # save plotted figures to this path.
+    savePath = '~/users/eiscatscanplot/plotted/esr_scans_{}'.format(os.path.basename(os.path.normpath(dataFolder)))  # save plotted figures to this path.
     savePathOverride = raw_input('\n2/5 Save plots in [default: {}] >> '.format(savePath))
     savePath = savePathOverride or savePath
     savePath = os.path.abspath(os.path.expanduser(savePath))
 
     # input latest image function
-    latestImagePath = '/www_kstdev/display/ESRlatest.png'
-    latestImagePathOverride = raw_input('\n3/5: Maintain a "latest scan" image file somewhere? [default ' + latestImagePath + ', single space to disable] >> ')
-    if latestImagePathOverride == ' ':
-        latestImagePath = ''
-    elif latestImagePathOverride:
-        latestImagePath = latestImagePathOverride
+    latestImagePath = raw_input('\n3/5: Maintain a "latest scan" image file somewhere? [full path and filename, empty to disable] >> ')
 
     # input which scan to start at
     startAt = '1'
@@ -1201,7 +1183,7 @@ if __name__ == "__main__":
     IPsec = 3.2  # integration period in seconds
     scanWidth = 120  # assumed scan width in degrees. Used for realtime flat-projection plots
     removeLargeErrs = False   # remove data where error > |value|
-    alts = []  # altitude lines to plot [km]. Set to empty list [] to disable
+    alts = [250, 500]  # altitude lines to plot [km]. Set to empty list [] to disable
 
     # additional settings
     additionalSettings = raw_input('\n5/5: Ready to start. The following additional non-critical settings may be edited. The three first are only for correcting realtime flat-projected scan plots when doing mixed elevation/azimuth scans (the saved plots will be corrected anyway).\n' +
