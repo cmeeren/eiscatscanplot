@@ -11,6 +11,7 @@ Initially tested at the ESR 2014-11-26
 
 from __future__ import print_function
 import os
+import shutil
 from os.path import isfile, join
 import re
 import logging
@@ -803,7 +804,7 @@ class Scan(object):
                 path = os.path.split(latestImagePath)[0]
                 if not os.path.isdir(path):
                     os.makedirs(path)
-                plt.savefig(latestImagePath, dpi=figSize)
+                shutil.copyfile(os.path.join(saveTo, fn), latestImagePath)
                 if RT or debugRT:
                     print('Saved file ' + latestImagePath)
 #                    logging.info('Saved file ' + latestImagePath)
