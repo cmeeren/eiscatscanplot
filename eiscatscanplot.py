@@ -1114,112 +1114,110 @@ if __name__ == "__main__":
 
     # datafolder input
     if dataFolder is None:
-        defaultDirStr = 'please specify, automatic detection failed: baseDataDir {} is not a directory'.format(baseDataDir)
+        dataFolderPrompt = '\nData folder could not be auto-detected, please specify: >> '
     else:
-        defaultDirStr = 'default: {}'.format(dataFolder)
+        dataFolderPrompt = '\nData folder [default: {}] >> '.format(dataFolder)
     while True:
-        dataFolderOverride = raw_input('\n1/5: Data folder [{}] >> '.format(defaultDirStr))
-        if not dataFolderOverride and dataFolder is None:
-            print('Please specify a data directory.')
-        elif not dataFolderOverride:
-            break
+        dataFolderOverride = raw_input(dataFolderPrompt)
+        if not dataFolderOverride and dataFolder is not None:
+            break  # use default
+        elif not dataFolderOverride and dataFolder is None:
+            print('Please specify a data folder.')
         elif os.path.isdir(dataFolderOverride):
             dataFolder = dataFolderOverride
             break
         else:
             print('Folder {} doesn\'t exist, please try again.'.format(dataFolderOverride))
 
-    # plot save path input
     savePath = '/www_kstdev/display/nov2014/esr_scans_{}'.format(os.path.basename(os.path.normpath(dataFolder)))  # save plotted figures to this path.
-    savePathOverride = raw_input('\n2/5 Save plots in [default: {}] >> '.format(savePath))
-    savePath = savePathOverride or savePath
-    savePath = os.path.abspath(os.path.expanduser(savePath))
 
-    # input latest image function
     latestImagePath = '/www_kstdev/display/ESRlatest.png'
-    latestImagePathOverride = raw_input('\n3/5: Maintain a "latest scan" image file somewhere? [default ' + latestImagePath + ', single space to disable] >> ')
-    if latestImagePathOverride == ' ':
-        latestImagePath = ''
-    elif latestImagePathOverride:
-        latestImagePath = latestImagePathOverride
+    latestImagePathStatus = latestImagePath or 'disabled'
 
-    # input which scan to start at
+    # guess which scan to start at
     startAt = '1'
-    defString = '1'
+    startAtMsg = ''
     # guess from files in savePath
     if os.path.isdir(savePath):
-        scanNos = [fn[-7:-4] for fn in os.listdir(savePath) if '.png' in fn]
-        if not len(scanNos) == 0:
+        files = [fn for fn in os.listdir(savePath) if '.png' in fn]
+        if not len(files) == 0:
             try:
+                scanNos = [fn[-7:-4] for fn in files]
                 startAt = str(int(max(scanNos)))  # will overwrite the last plot, which might be incomplete
-                defString = startAt + ' (inferred from files in plot folder)'
+                startAtMsg = '(auto-detected)'
             except:
-                startAt = '1'
-                defString = '1 (unable to parse .png filenames in plot folder)'
-    startAtOverride = raw_input('\n4/5: Start plotting from scan no. or time HH:MM [default: scan no. ' + defString + '] >> ')
-    if startAtOverride == '0':
-        startAt = '1'
-    elif startAtOverride:
-        startAt = startAtOverride
+                startAtMsg = '(unable to parse files in plot folder)'
 
-    # the following two constants are only used for aesthetic purposes in realtime plots
-    # (saved figures will be correct anyway)
     scanSpeedDegPerSec = 0.63  # scan speed per second
     IPsec = 6.4  # integration period in seconds
-    scanWidth = 120  # assumed scan width in degrees. Used for realtime flat-projection plots
     removeLargeErrs = False   # remove data where error > |value|
     alts = []  # altitude lines to plot [km]. Set to empty list [] to disable
 
     # additional settings
-    additionalSettings = raw_input('\n5/5: Ready to start. The following additional non-critical settings may be edited. The three first are only used for correcting realtime plots (the saved plots will be corrected anyway).\n' +
-                                   '   - Scan speed: {} deg/s\n'.format(scanSpeedDegPerSec) +
-                                   '   - Integration period (GUISDAP): {} s\n'.format(IPsec) +
-                                   '   - Scan width: {} deg\n'.format(scanWidth) +
-                                   '   - Altitude lines: {}\n'.format(' '.join(map(str, alts))) +
-                                   '   - Remove data where error > |value|: {}\n'.format({True: 'yes', False: 'no'}[removeLargeErrs]) +
-                                   '   - Realtime plotting: {}\n'.format({True: 'yes', False: 'no'}[RT]) +
-                                   '\nAccept these defaults and proceed to plotting? [y/n, default yes] >> ')
-    if additionalSettings in ['n', 'no']:
-
-        # input scan speed per sec
-        scanSpeedDegPerSecOverride = raw_input('\nScan speed in degrees per second [default {}] >> '.format(scanSpeedDegPerSec))
-        if scanSpeedDegPerSecOverride:
-            scanSpeedDegPerSec = float(scanSpeedDegPerSecOverride)
-
-        # input analysis integration period
-        IPsecOverride = raw_input('\nIntegration period (of GUISDAP analysis) in seconds [default: {}] >> '.format(IPsec))
-        if IPsecOverride:
-            IPsec = float(IPsecOverride)
-
-        # input scan width
-        scanWidthOverride = raw_input('\nScan width in degrees [default: {}] >> '.format(scanWidth))
-        if scanWidthOverride:
-            scanWidth = float(scanWidthOverride)
-
-        # input altitude lines
-        altsOverride = raw_input('\nDraw lines at which altitudes? [space-separated list of numbers, blank for default ({}), single space to disable] >> '.format(' '.join(map(str, alts))))
-        if altsOverride:
-            alts = map(int, altsOverride.split())
-
-        # input whether to remove data where error > |value|
-        removeLargeErrs_override = raw_input('\nRemove data where error > |value|? [y/n, default {}] >> '.format({True: 'yes', False: 'no'}[removeLargeErrs]))
-        if removeLargeErrs_override in ['y', 'yes']:
-            removeLargeErrs = True
-        elif removeLargeErrs_override in ['n', 'no']:
-            removeLargeErrs = False
-
-        # input to switch realtime plotting
-        RT_override = raw_input('\nRealtime plotting? [y/n, default {}] >> '.format({True: 'yes', False: 'no'}[RT]))
-        if RT_override in ['y', 'yes']:
-            RT = True
-        elif RT_override in ['n', 'no']:
-            RT = False
+    while True:
+        additionalSettings = raw_input('\nReady to start. The following additional settings may be edited. Scan speed and integration period are only used for beam width realtime plots (saved plots will be correct anyway).\n' +
+                                       '   1. Save figures to: {}\n'.format(savePath) +
+                                       '   2. Start at (scan no. x or time HH:MM): {}\n'.format(startAt) +
+                                       '   3. Maintain a \'latest scan\' image: {}\n'.format(latestImagePathStatus) +
+                                       '   4. Scan speed: {} deg/s\n'.format(scanSpeedDegPerSec) +
+                                       '   5. Integration period (GUISDAP): {} s\n'.format(IPsec) +
+                                       '   6. Altitude lines: {}\n'.format(' '.join(map(str, alts))) +
+                                       '   7. Remove data where error > |value|: {}\n'.format(removeLargeErrs) +
+                                       '   8. Realtime plotting: {}\n'.format(RT) +
+                                       '\nPlease select a number or press Enter to start plotting >> ')
+        if not additionalSettings:
+            break
+        elif additionalSettings == '1':
+            # plot save path
+            savePathOverride = raw_input('\nSave plots in folder [default: {}] >> '.format(savePath))
+            savePath = savePathOverride or savePath
+            savePath = os.path.abspath(os.path.expanduser(savePath))
+        elif additionalSettings == '2':
+            # start scan no. or start time
+            startAtOverride = raw_input('\nEnter scan number or HH:MM from which to start [default: scan no. {}{}] >> '.format(startAt, startAtMsg))
+            if startAtOverride == '0':
+                startAt = '1'
+            elif startAtOverride:
+                startAt = startAtOverride
+        elif additionalSettings == '3':
+            # 'latest scan' image
+            latestImagePathOverride = raw_input('\nMaintain a \'latest scan\' image file somewhere? [full path and filename, empty to disable] >> ')
+            if latestImagePathOverride:
+                latestImagePath = latestImagePathOverride
+                latestImagePathStatus = latestImagePath or 'disabled'
+        elif additionalSettings == '4':
+            # scan speed per sec
+            scanSpeedDegPerSecOverride = raw_input('\nScan speed in degrees per second [default {}] >> '.format(scanSpeedDegPerSec))
+            if scanSpeedDegPerSecOverride:
+                scanSpeedDegPerSec = float(scanSpeedDegPerSecOverride)
+        elif additionalSettings == '5':
+            # analysis integration period
+            IPsecOverride = raw_input('\nEffective integration period (of GUISDAP analysis) in seconds. If set to \'1\' in GUISDAP, please enter the experiment integration period. [default: {}] >> '.format(IPsec))
+            if IPsecOverride:
+                IPsec = float(IPsecOverride)
+        elif additionalSettings == '6':
+            # altitude lines
+            altsOverride = raw_input('\nDraw lines at which altitudes? Space-separated list of numbers, blank for default, single space to disable [default: {}] >> '.format(' '.join(map(str, alts))))
+            if altsOverride:
+                alts = map(int, altsOverride.split())
+        elif additionalSettings == '7':
+            # switch error filter
+            removeLargeErrs = not removeLargeErrs
+            print('Error filter turned {}'.format({True: 'ON', False: 'OFF'}[removeLargeErrs]))
+        elif additionalSettings == '8':
+            # switch realtime plotting
+            RT = not RT
+            print('Realtime turned {}'.format({True: 'ON', False: 'OFF'}[RT]))
+        else:
+            print('Invalid choice')
 
     defScanSpeedPerIP = scanSpeedDegPerSec*IPsec  # default scan speed in degrees per integration period. Used to assist in rotating flat-projection plots
 
+    print('Starting scan parsing')
+
     scan_parse(dataFolder=dataFolder, savePath=savePath, doPlot=True, latestImagePath=latestImagePath, RT=RT,
                onlyDoScanNo=onlyDoScanNo, startAt=startAt, removeLargeErrs=removeLargeErrs, RT_replotAfterScan=RT_replotAfterScan,
-               scanWidth=scanWidth, defScanSpeedPerIP=defScanSpeedPerIP, alts=alts, radarLoc=radarLoc, mapWidth=mapWidth, figSize=figSize,
+               defScanSpeedPerIP=defScanSpeedPerIP, alts=alts, radarLoc=radarLoc, mapWidth=mapWidth, figSize=figSize,
                debugRT=debugRT)
 
-    raw_input('\nPlotting finished, press Enter to end script.')
+    raw_input('\nPlotting finished, figures saved to {}. Press Enter to close >> '.format(savePath))
