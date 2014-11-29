@@ -271,7 +271,8 @@ class Scan(object):
             for az in azList:
                 for alt in alts:
                     lat, lon, h = find_coord_alt(radarLoc, self.El[beamNo], az, alt)
-                    latFlat, lonFlat, hFlat = find_coord_alt_2(radarLoc, self.El[beamNo], 30, az, alt)
+                    azFlat = az if self.El[beamNo] <= 90 else az + 180
+                    latFlat, lonFlat, hFlat = find_coord_alt_2(radarLoc, self.El[beamNo], 30, azFlat, alt)
                     try:  # append coordinates to this altitude
                         self.altLats[alt] = np.append(self.altLats[alt], lat)
                         self.altLons[alt] = np.append(self.altLons[alt], lon)
@@ -306,10 +307,12 @@ class Scan(object):
                     vertexLats[p, :] = [v1[0], v2[0], v3[0], v4[0]]
                     vertexLons[p, :] = [v1[1], v2[1], v3[1], v4[1]]
 
-                    v1_flat = loc2gg(radarLoc, [30, az1, ran1])
-                    v2_flat = loc2gg(radarLoc, [30, az1, ran2])
-                    v3_flat = loc2gg(radarLoc, [30, az2, ran2])
-                    v4_flat = loc2gg(radarLoc, [30, az2, ran1])
+                    azFlat1 = az1 if self.El[beamNo] <= 90 else az1 + 180
+                    azFlat2 = az2 if self.El[beamNo] <= 90 else az2 + 180
+                    v1_flat = loc2gg(radarLoc, [30, azFlat1, ran1])
+                    v2_flat = loc2gg(radarLoc, [30, azFlat1, ran2])
+                    v3_flat = loc2gg(radarLoc, [30, azFlat2, ran2])
+                    v4_flat = loc2gg(radarLoc, [30, azFlat2, ran1])
                     vertexLats_flat[p, :] = [v1_flat[0], v2_flat[0], v3_flat[0], v4_flat[0]]
                     vertexLons_flat[p, :] = [v1_flat[1], v2_flat[1], v3_flat[1], v4_flat[1]]
 
@@ -419,23 +422,23 @@ class Scan(object):
                 for _ax in self.axes[0:4]:
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=2.5, color='w', ax=_ax)[0])
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=1.5, color='k', ax=_ax)[0])
-                    self.plottedAlts[alt].append(_ax.text(x[0], y[0], s=' ' + str(alt) + '$\,$km ', horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=3, foreground='w'), pe.Normal()]))
+                    self.plottedAlts[alt].append(_ax.text(x[0], y[0], s=' ' + str(alt) + '$\,$km ', ha=hor, va=vert, path_effects=[pe.withStroke(linewidth=3, foreground='w')]))
 
                 for _ax in self.axes[4:8]:
                     if self.scDir not in ['elev incr', 'elev decr']:  # don't plot in flat-projection for elevation scans
                         self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=2.5, color='w', ax=_ax)[0])
                         self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=1.5, color='k', ax=_ax)[0])
-                        self.plottedAltsFlat[alt].append(_ax.text(xFlat[0], yFlat[0], s=sFlat, horizontalalignment=horFlat, verticalalignment=vertFlat, rotation=angleFlat, path_effects=[pe.Stroke(linewidth=2, foreground='w'), pe.Normal()]))
+                        self.plottedAltsFlat[alt].append(_ax.text(xFlat[0], yFlat[0], s=' ' + str(alt) + '$\,$km ', ha=hor, va=vert, path_effects=[pe.withStroke(linewidth=3, foreground='w')]))
 
             else:  # plotting by self.plot_overlay() or something else
                 if plotFlat:
                     self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=2.5, color='w', ax=ax)[0])
                     self.plottedAltsFlat[alt].append(mapObj.plot(xFlat, yFlat, linewidth=1.5, color='k', ax=ax)[0])
-                    self.plottedAltsFlat[alt].append(ax.text(xFlat[0], yFlat[0], s=sFlat, horizontalalignment=horFlat, verticalalignment=vertFlat, rotation=angleFlat, path_effects=[pe.Stroke(linewidth=2, foreground='w'), pe.Normal()]))
+                    self.plottedAltsFlat[alt].append(ax.text(xFlat[0], yFlat[0], s=sFlat, horizontalalignment=horFlat, verticalalignment=vertFlat, rotation=angleFlat, path_effects=[pe.withStroke(linewidth=3, foreground='w')]))
                 else:
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=2.5, color='w', ax=ax)[0])
                     self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=1.5, color='k', ax=ax)[0])
-                    self.plottedAlts[alt].append(ax.text(x[0], y[0], s=str(alt) + '$\,$km', horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.Stroke(linewidth=2, foreground='w'), pe.Normal()]))
+                    self.plottedAlts[alt].append(ax.text(x[0], y[0], s=str(alt) + '$\,$km', horizontalalignment=hor, verticalalignment=vert, path_effects=[pe.withStroke(linewidth=3, foreground='w')]))
 
     def update_alts(self, rotFlat=None):
 
@@ -482,44 +485,12 @@ class Scan(object):
         if len(self.Az) < 3:
             return
 
-        # get (ccw) rotation angle for flat-projection plots (ideally, zenith should be vertical)
-        if self.finished and self.fig is None:
-            ind_maxEl = np.argmin(np.abs(self.El-90))
-            # ind_maxEl corresponds to the last data point of the upleg or the first data point of the downleg
-            if np.abs(self.El[ind_maxEl]-90) < 30:
-                if np.abs(self.El[ind_maxEl]-90) < defScanSpeedPerIP or self._data_skip_before(ind_maxEl) or self._data_skip_after(ind_maxEl):
-                    # zenith dump is close enough to 90 deg (or the data skips), plot should be centered at 90 degrees
-                    # use congruence of scan to find azimuth where el=90
-                    # TODO: What if ind_maxEl corresponds to one of first two indices?
-                    az1 = self.Az[ind_maxEl-2]
-                    az2 = self.Az[ind_maxEl-1]
-                    el1 = self.El[ind_maxEl-2]
-                    el2 = self.El[ind_maxEl-1]
-                    smallPlotRotAngle = az1 + ((90 - el1) * (az2 - az1)) / (el2 - el1)
-                else:
-                    # plot should be centered not at 90 degrees, but at the highest elevation
-                    smallPlotRotAngle = self.Az[ind_maxEl]
-#                if self.El[ind_maxEl-1] < self.El[ind_maxEl]:  # upleg
-#                    smallPlotRotAngle = self.Az[ind_maxEl]+(self.El[ind_maxEl]-90)
-#                else:
-#                    smallPlotRotAngle = self.Az[ind_maxEl-1]+(self.El[ind_maxEl-1]-90)
-            else:
-                # max elevation of scan not close to 90, make symmetric instead
-                smallPlotRotAngle = (self.Az[0] + self.Az[-1]) / 2
-        # scan not finished or already plotted (updating plot)
-        elif self.scDir == 'cw':
-            smallPlotRotAngle = self.Az[0] + scanWidth/2
-        elif self.scDir == 'ccw':
-            smallPlotRotAngle = self.Az[0] - scanWidth/2
-        else:
-            smallPlotRotAngle = 0
-
         # initiate figure/axes
         if self.fig is None:
 
-            self.fig = plt.figure(figsize=(22, 11), dpi=figSize)
+            self.fig = plt.figure(figsize=(22, 14), dpi=figSize)
 
-            gs_main = mpl.gridspec.GridSpec(3, 1, height_ratios=[2, 1, 0.8])
+            gs_main = mpl.gridspec.GridSpec(3, 1, height_ratios=[2, 2, 0.8])
             gs_map = mpl.gridspec.GridSpecFromSubplotSpec(1, 4, subplot_spec=gs_main[0])
             gs_flat = mpl.gridspec.GridSpecFromSubplotSpec(1, 4, subplot_spec=gs_main[1])
             gs_elev = mpl.gridspec.GridSpecFromSubplotSpec(1, 4, subplot_spec=gs_main[2])
@@ -537,7 +508,7 @@ class Scan(object):
             self.axes.append(plt.subplot(gs_elev[2], aspect='equal', adjustable='box-forced', sharex=self.axes[8], sharey=self.axes[8]))
             self.axes.append(plt.subplot(gs_elev[3], aspect='equal', adjustable='box-forced', sharex=self.axes[8], sharey=self.axes[8]))
 
-            gs_main.update(left=0.035, right=0.96, bottom=0.06, top=0.9, wspace=0.1, hspace=0)
+            gs_main.update(left=0.035, right=0.96, bottom=0.06, top=0.95, wspace=0.1, hspace=0)
 
             # initiate maps
             self.map = Basemap(width=mapWidth,
@@ -660,20 +631,11 @@ class Scan(object):
 
         # plot altitude levels
         if self.plottedAlts:
-            self.update_alts(rotFlat=[-smallPlotRotAngle, radarLoc[0], radarLoc[1]])
+            self.update_alts()
         else:
-            self.plot_alts(rotFlat=[-smallPlotRotAngle, radarLoc[0], radarLoc[1]])
-
-        # adjust limits of flat-projection plots
-        ymin = self.map.llcrnry
-        ymax = self.map.urcrnry
-        self.axes[4].set_ylim((ymax-ymin)*0.55, (ymax-ymin)*0.9)
-#        xmin = self.map.llcrnrx
-#        xmax = self.map.urcrnrx
-#        self.axes[4].set_xlim((xmax-xmin)*0.2, (xmax-xmin)*0.8)
+            self.plot_alts()
 
         # set main title of plot
-
         mainTitleStr = u'Scan #{0} ({1})   {2}\u2212{3}'.format(self.scNo, self.scDirElev or self.scDir, self.tStart[0].strftime('%d %b %Y %H:%M:%S'), self.tEnd[-1].strftime('%H:%M:%S'))
         if self.mainTitle is None:
             self.mainTitle = self.fig.text(0.5, 0.98, mainTitleStr, horizontalalignment='center', verticalalignment='top', fontsize='xx-large')
