@@ -559,7 +559,8 @@ class Scan(object):
                     row = rocket_track[rocket_track[:, 0] == timeafterlaunch, :]
                     row = row.flatten()
                     x, y = self.map(row[4], row[3])
-                    ax.annotate(s=str(int(row[0])) + '$\,$s', xy=(x, y), xycoords='data', xytext=(-2, 0), textcoords='offset points', ha='right', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
+                    self.map.plot(x, y, 'r.', ax=ax, markersize=15)
+                    ax.annotate(s=str(int(row[0])) + '$\,$s', xy=(x, y), xycoords='data', xytext=(-5, 0), textcoords='offset points', ha='right', va='center', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
                     if timeafterlaunch == 200:
                         ax.annotate(s='CAPER\ntrajectory', xy=(x, y), xycoords='data', xytext=(-50, 0), textcoords='offset points', ha='right', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
 
