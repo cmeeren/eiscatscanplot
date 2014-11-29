@@ -1198,7 +1198,7 @@ if __name__ == "__main__":
 
     # additional settings
     while True:
-        additionalSettings = raw_input('\nReady to start. The following additional settings may be edited.\nScan speed and integration period are only used for beam width\nin realtime plots (saved plots will be correct anyway).\n\n' +
+        additionalSettings = raw_input('\nPress Enter to plot or type a number to change the settings below. The following additional settings may be edited.\nScan speed and integration period are only used for beam width\nin realtime plots (saved plots will be correct anyway).\n\n' +
                                        '   1. Save figures to: {}\n'.format(savePath) +
                                        '   2. Web access: {}\n'.format(webAccessFolderMsg) +
                                        '   3. Start at (scan no. x or time HH:MM): {}\n'.format(startAt) +
