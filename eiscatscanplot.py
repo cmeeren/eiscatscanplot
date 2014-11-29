@@ -557,11 +557,7 @@ class Scan(object):
 
             # small plot "titles"
             for ax in self.axes[4:8]:
-                ax.set_title('Flattened (for mixed az/el scans)')
-
-            # uncomment to change map background from white to something else
-#            for ax in self.axes[0:8]:
-#                self.map.drawmapboundary(fill_color='0.8', ax=ax)
+                ax.set_title(u'Flattened to 30\u00B0 elev (for mixed az/el scans)')
 
         # get coordinates of things to plot
         vertexLats, vertexLons, vertexLats_flat, vertexLons_flat, vertexX_elev, vertexY_elev = self._vertex_array(self.plotAlts, radarLoc)
