@@ -953,6 +953,11 @@ def scan_parse(dataFolder, savePath,
                     # load params
                     Time, par2D, par1D, rpar2D, err2D = load_param_single_simple(join(dataFolder, fn), trueAzEl=True)
 
+                    # avoid crashing if a new beam somehow starts before the last beam
+                    if Time_prev is not None and Time[0, 0] <= Time_prev[0, 0]:
+                        logging.warning(fn + ': Timestamp of file is before timestamp previous file (analysis error?), skipping file')
+                        continue
+
                     # get current azim and scan direction
                     currentAzim = par1D[0, 0]
                     currentScDir = scan_dir(currentAzim, lastAzim)
