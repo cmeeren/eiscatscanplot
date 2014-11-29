@@ -1179,14 +1179,14 @@ if __name__ == "__main__":
 
     # the following two constants are only used for aesthetic purposes in realtime plots
     # (saved figures will be correct anyway)
-    scanSpeedDegPerSec = 1.0  # scan speed per second
-    IPsec = 3.2  # integration period in seconds
+    scanSpeedDegPerSec = 0.63  # scan speed per second
+    IPsec = 6.4  # integration period in seconds
     scanWidth = 120  # assumed scan width in degrees. Used for realtime flat-projection plots
     removeLargeErrs = False   # remove data where error > |value|
     alts = [250, 500]  # altitude lines to plot [km]. Set to empty list [] to disable
 
     # additional settings
-    additionalSettings = raw_input('\n5/5: Ready to start. The following additional non-critical settings may be edited. The three first are only for correcting realtime flat-projected scan plots when doing mixed elevation/azimuth scans (the saved plots will be corrected anyway).\n' +
+    additionalSettings = raw_input('\n5/5: Ready to start. The following additional non-critical settings may be edited. The three first are only used for correcting realtime plots (the saved plots will be corrected anyway).\n' +
                                    '   - Scan speed: {} deg/s\n'.format(scanSpeedDegPerSec) +
                                    '   - Integration period (GUISDAP): {} s\n'.format(IPsec) +
                                    '   - Scan width: {} deg\n'.format(scanWidth) +
