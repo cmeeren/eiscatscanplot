@@ -556,7 +556,7 @@ class Scan(object):
 
             # small plot "titles"
             for ax in self.axes[4:8]:
-                ax.set_title(u'Projected to 30\u00B0 elevation')
+                ax.set_title('Flattened (for mixed az/el scans)')
 
             # uncomment to change map background from white to something else
 #            for ax in self.axes[0:8]:
