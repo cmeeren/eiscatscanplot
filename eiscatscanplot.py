@@ -1209,16 +1209,14 @@ if __name__ == "__main__":
 
     # additional settings
     while True:
-        additionalSettings = raw_input('\nPress Enter to plot or type a number to change the settings below. The following additional settings may be edited.\nScan speed and integration period are only used for beam width\nin realtime plots (saved plots will be correct anyway).\n\n' +
+        additionalSettings = raw_input('\nPress Enter to plot or type a number to change the settings below. The following additional settings may be edited.\n\n' +
                                        '   1. Save figures to: {}\n'.format(savePath) +
                                        '   2. Web access: {}\n'.format(webAccessFolderMsg) +
                                        '   3. Start at (scan no. x or time HH:MM): {}\n'.format(startAt) +
-                                       '   4. Scan speed: {} deg/s\n'.format(scanSpeedDegPerSec) +
-                                       '   5. Integration period (GUISDAP): {} s\n'.format(IPsec) +
-                                       '   6. Altitude lines: {}\n'.format(' '.join(map(str, alts))) +
-                                       '   7. Draw magnetic parallel/meridian: {}\n'.format(drawMag) +
-                                       '   8. Remove data where error > |value|: {}\n'.format(removeLargeErrs) +
-                                       '   9. Realtime plotting: {}\n'.format(RT) +
+                                       '   4. Altitude lines: {}\n'.format(' '.join(map(str, alts))) +
+                                       '   5. Draw magnetic parallel/meridian: {}\n'.format(drawMag) +
+                                       '   6. Remove data where error > |value|: {}\n'.format(removeLargeErrs) +
+                                       '   7. Realtime plotting: {}\n'.format(RT) +
                                        '\nPlease select a number or press Enter to start plotting >> ')
         if not additionalSettings:
             break
@@ -1245,42 +1243,30 @@ if __name__ == "__main__":
             elif startAtOverride:
                 startAt = startAtOverride
         elif additionalSettings == '4':
-            # scan speed per sec
-            scanSpeedDegPerSecOverride = raw_input('\nScan speed in degrees per second [default {}] >> '.format(scanSpeedDegPerSec))
-            if scanSpeedDegPerSecOverride:
-                scanSpeedDegPerSec = float(scanSpeedDegPerSecOverride)
-        elif additionalSettings == '5':
-            # analysis integration period
-            IPsecOverride = raw_input('\nEffective integration period (of GUISDAP analysis) in seconds. If set to \'1\' in GUISDAP, please enter the experiment integration period. [default: {}] >> '.format(IPsec))
-            if IPsecOverride:
-                IPsec = float(IPsecOverride)
-        elif additionalSettings == '6':
             # altitude lines
             altsOverride = raw_input('\nDraw lines at which altitudes? Space-separated list of numbers, blank for default, single space to disable [default: {}] >> '.format(' '.join(map(str, alts))))
             if altsOverride:
                 alts = map(int, altsOverride.split())
-        elif additionalSettings == '7':
+        elif additionalSettings == '5':
             # switch draw magnetic meridian/parallel through ESR
             drawMag = not drawMag
             print('Draw magnetic parallel/meridian through ESR turned {}'.format({True: 'ON', False: 'OFF'}[drawMag]))
-        elif additionalSettings == '8':
+        elif additionalSettings == '6':
             # switch error filter
             removeLargeErrs = not removeLargeErrs
             print('Error filter turned {}'.format({True: 'ON', False: 'OFF'}[removeLargeErrs]))
-        elif additionalSettings == '9':
+        elif additionalSettings == '7':
             # switch realtime plotting
             RT = not RT
             print('Realtime turned {}'.format({True: 'ON', False: 'OFF'}[RT]))
         else:
             print('Invalid choice')
 
-    defScanSpeedPerIP = scanSpeedDegPerSec*IPsec  # default scan speed in degrees per integration period. Used to assist in rotating flat-projection plots
-
     print('Starting scan parsing')
 
     scan_parse(dataFolder=dataFolder, savePath=savePath, doPlot=True, RT=RT,
                onlyDoScanNo=onlyDoScanNo, startAt=startAt, removeLargeErrs=removeLargeErrs, RT_replotAfterScan=RT_replotAfterScan,
-               defScanSpeedPerIP=defScanSpeedPerIP, alts=alts, drawMag=drawMag, radarLoc=radarLoc, mapWidth=mapWidth, figSize=figSize,
+               alts=alts, drawMag=drawMag, radarLoc=radarLoc, mapWidth=mapWidth, figSize=figSize,
                debugRT=debugRT, webAccessFolder=webAccessFolder, webAccessFolderExternal=webAccessFolderExternal)
 
     raw_input('\nPlotting finished, figures saved to {}. Press Enter to close >> '.format(savePath))
