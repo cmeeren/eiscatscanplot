@@ -15,6 +15,7 @@ import shutil
 from os.path import isfile, join
 import re
 import logging
+import pickle
 import datetime as dt
 import numpy as np
 import matplotlib as mpl
@@ -522,6 +523,14 @@ class Scan(object):
             for ax in self.axes[0:4]:
                 self.map.drawcoastlines(linewidth=0.5, color="k", ax=ax)
 
+            # draw magnetic meridian/parallel through ESR
+            if drawMag:
+                with open('magLatLon.pckl', 'r') as f:
+                    magLatLon = pickle.load(f)
+                for ax in self.axes[0:4]:
+                    self.map.plot(magLatLon[1], magLatLon[0], latlon=True, ax=ax, color='k', linestyle='dotted', linewidth=3, path_effects=[pe.withStroke(foreground='w', linewidth=5)])
+                    self.map.plot(magLatLon[3], magLatLon[2], latlon=True, ax=ax, color='k', linestyle='dotted', linewidth=3, path_effects=[pe.withStroke(foreground='w', linewidth=5)])
+
             # draw inivible coastlines in flat plots
             for ax in self.axes[4:8]:
                 self.map.drawcoastlines(linewidth=0, color="w", zorder=-100, ax=ax)
@@ -835,7 +844,7 @@ def fix_dimensions(par2D, new_par2D, err2D, new_err2D):
 
 def scan_parse(dataFolder, savePath,
                doPlot=False, onlyDoScanNo=None, startAt=None, removeLargeErrs=False, RT=False, RT_replotAfterScan=True,
-               scanWidth=120, defScanSpeedPerIP=0.62*3, alts=None, radarLoc=None, mapWidth=1.8e6, figSize=72,
+               scanWidth=120, defScanSpeedPerIP=0.62*3, alts=None, drawMag=False, radarLoc=None, mapWidth=1.8e6, figSize=72,
                debugRT=False, webAccessFolder='', webAccessFolderExternal=''):
     '''docstring'''
 
@@ -1192,6 +1201,7 @@ if __name__ == "__main__":
     IPsec = 6.4  # integration period in seconds
     removeLargeErrs = False   # remove data where error > |value|
     alts = [250, 500]  # altitude lines to plot [km]. Set to empty list [] to disable
+    drawMag = True
 
     # additional settings
     while True:
@@ -1202,8 +1212,9 @@ if __name__ == "__main__":
                                        '   4. Scan speed: {} deg/s\n'.format(scanSpeedDegPerSec) +
                                        '   5. Integration period (GUISDAP): {} s\n'.format(IPsec) +
                                        '   6. Altitude lines: {}\n'.format(' '.join(map(str, alts))) +
-                                       '   7. Remove data where error > |value|: {}\n'.format(removeLargeErrs) +
-                                       '   8. Realtime plotting: {}\n'.format(RT) +
+                                       '   7. Draw magnetic parallel/meridian: {}\n'.format(drawMag) +
+                                       '   8. Remove data where error > |value|: {}\n'.format(removeLargeErrs) +
+                                       '   9. Realtime plotting: {}\n'.format(RT) +
                                        '\nPlease select a number or press Enter to start plotting >> ')
         if not additionalSettings:
             break
@@ -1245,10 +1256,14 @@ if __name__ == "__main__":
             if altsOverride:
                 alts = map(int, altsOverride.split())
         elif additionalSettings == '7':
+            # switch draw magnetic meridian/parallel through ESR
+            drawMag = not drawMag
+            print('Draw magnetic parallel/meridian through ESR turned {}'.format({True: 'ON', False: 'OFF'}[drawMag]))
+        elif additionalSettings == '8':
             # switch error filter
             removeLargeErrs = not removeLargeErrs
             print('Error filter turned {}'.format({True: 'ON', False: 'OFF'}[removeLargeErrs]))
-        elif additionalSettings == '8':
+        elif additionalSettings == '9':
             # switch realtime plotting
             RT = not RT
             print('Realtime turned {}'.format({True: 'ON', False: 'OFF'}[RT]))
@@ -1261,7 +1276,7 @@ if __name__ == "__main__":
 
     scan_parse(dataFolder=dataFolder, savePath=savePath, doPlot=True, RT=RT,
                onlyDoScanNo=onlyDoScanNo, startAt=startAt, removeLargeErrs=removeLargeErrs, RT_replotAfterScan=RT_replotAfterScan,
-               defScanSpeedPerIP=defScanSpeedPerIP, alts=alts, radarLoc=radarLoc, mapWidth=mapWidth, figSize=figSize,
+               defScanSpeedPerIP=defScanSpeedPerIP, alts=alts, drawMag=drawMag, radarLoc=radarLoc, mapWidth=mapWidth, figSize=figSize,
                debugRT=debugRT, webAccessFolder=webAccessFolder, webAccessFolderExternal=webAccessFolderExternal)
 
     raw_input('\nPlotting finished, figures saved to {}. Press Enter to close >> '.format(savePath))
