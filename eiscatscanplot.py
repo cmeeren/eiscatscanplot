@@ -1111,7 +1111,9 @@ def make_html(webAccessFolder, webAccessFolderExternal, imageFolder, lastFile):
 
     # read html template code from source file
     with open('rt_src.html', 'r') as f:
-        s = f.read()
+        s1 = f.read()
+    with open('rt_src.html', 'r') as f:
+        s2 = f.read()
 
     # make list of files
     files = [fn for fn in os.listdir(imageFolder) if '.png' in fn]
@@ -1122,15 +1124,25 @@ def make_html(webAccessFolder, webAccessFolderExternal, imageFolder, lastFile):
 
     files_external = [os.path.join(plotFoldersIn_external, os.path.basename(imageFolder), fn) for fn in files]
 
-    # insert file list and update latest image
-    s = s.replace('[!filenames]', 'filenames = ' + str(files_external))
-    s = s.replace('[!latestImg]', files_external[-1])
-    s = s.replace('[!latestImgPermalink]', os.path.join(webAccessFolderExternal, 'ESRlatest.png'))
-    s = s.replace('[!picFolder]', plotFoldersIn_external)
+    # insert file list, latest image and link to image folder
+    s1 = s1.replace('[!filenames]', 'filenames = ' + str(files_external))
+    s1 = s1.replace('[!latestImg]', files_external[-1])
+    s1 = s1.replace('[!latestImgPermalink]', os.path.join(webAccessFolderExternal, 'ESRlatest.png'))
+    s1 = s1.replace('[!picFolder]', plotFoldersIn_external)
+
+    # do the same for the plot folder html file
+    s2 = s2.replace('[!filenames]', 'filenames = ' + str(files))
+    s2 = s2.replace('[!latestImg]', files[-1])
+    s2 = s2.replace('[!latestImgPermalink]', os.path.join(webAccessFolderExternal, 'ESRlatest.png'))
+    s2 = s2.replace('[!picFolder]', plotFoldersIn_external)
 
     # write html page
     with open(os.path.join(webAccessFolder, 'scans.html'), 'w') as f:
-        f.write(s)
+        f.write(s1)
+
+    # write html page
+    with open(os.path.join(plotsIn, '!_SCAN_BROWSER.html'), 'w') as f:
+        f.write(s2)
 
 if __name__ == "__main__":
 
