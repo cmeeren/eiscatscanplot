@@ -624,9 +624,13 @@ class Scan(object):
 
         self.elScanDirectionPlotted = True
 
+        # toward/away on velocity cbar
+        self.cbarAxis[1].text(0, 1.03, 'away', ha='left', va='bottom', transform=self.cbarAxis[1].transAxes)
+        self.cbarAxis[1].text(0, -0.03, 'toward', ha='left', va='top', transform=self.cbarAxis[1].transAxes)
+
         # big plot titles
         self.axes[0].set_title(u'Electron density [m$\mathregular{^{−3}}$]')
-        self.axes[1].set_title('Ion velocity [m/s, red = away from radar]')
+        self.axes[1].set_title('Ion velocity [m/s]')
         self.axes[2].set_title('Electron temperature [K]')
         self.axes[3].set_title('Ion temperature [K]')
 
