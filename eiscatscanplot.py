@@ -608,29 +608,29 @@ class Scan(object):
                     if self.scDir == 'elev decr':
                         azDir += 180
 
-                # function to find out if azDir is within 22.5 degrees of some direction
-                az_near = lambda x: np.cos(np.deg2rad(azDir-x)) >= np.cos(np.deg2rad(22.5))
+                    # function to find out if azDir is within 22.5 degrees of some direction
+                    az_near = lambda x: np.cos(np.deg2rad(azDir-x)) >= np.cos(np.deg2rad(22.5))
 
-                # dictionary of direction string for positive/negative elevation at a given azimuth
-                dirDict = {0: ['N', 'S'],
-                           45: ['NE', 'SW'],
-                           90: ['E', 'W'],
-                           135: ['SE', 'NW'],
-                           180: ['S', 'N'],
-                           225: ['SW', 'NE'],
-                           270: ['W', 'E'],
-                           315: ['NW', 'SE']}
+                    # dictionary of direction string for positive/negative elevation at a given azimuth
+                    dirDict = {0: ['N', 'S'],
+                               45: ['NE', 'SW'],
+                               90: ['E', 'W'],
+                               135: ['SE', 'NW'],
+                               180: ['S', 'N'],
+                               225: ['SW', 'NE'],
+                               270: ['W', 'E'],
+                               315: ['NW', 'SE']}
 
-                # find the correct direction string
-                for direction in dirDict:
-                    if az_near(direction):
-                        dirs = dirDict[direction]
-                        self.scDirElev = '-'.join(dirs)
-                        break
+                    # find the correct direction string
+                    for direction in dirDict:
+                        if az_near(direction):
+                            dirs = dirDict[direction]
+                            self.scDirElev = '-'.join(dirs)
+                            break
 
-                left, right = dirs if self.scDir == 'elev decr' else dirs[::-1]
-                self.axes[i+8].text(0, -0.25, left, ha='left', fontweight='bold', transform=self.axes[i+8].transAxes)
-                self.axes[i+8].text(1, -0.25, right, ha='right', fontweight='bold', transform=self.axes[i+8].transAxes)
+                    left, right = dirs if self.scDir == 'elev decr' else dirs[::-1]
+                    self.axes[i+8].text(0, -0.25, left, ha='left', fontweight='bold', transform=self.axes[i+8].transAxes)
+                    self.axes[i+8].text(1, -0.25, right, ha='right', fontweight='bold', transform=self.axes[i+8].transAxes)
 
         self.elScanDirectionPlotted = True
 
