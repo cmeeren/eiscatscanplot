@@ -1227,12 +1227,12 @@ if __name__ == "__main__":
             savePath = os.path.abspath(os.path.expanduser(savePath))
         elif additionalSettings == '2':
             # 'remote web access to scans
-            webAccessFolderOverride = raw_input('\nLocal folder in which to put the html file\n[default: {}, single space to disable] >> '.format(webAccessFolder))
+            webAccessFolderOverride = raw_input('\nLocal folder in which to put the html file [default: {}, single space to disable] >> '.format(webAccessFolder))
             if webAccessFolderOverride == ' ':
                 webAccessFolder = ''
             else:
                 latestImagePath = webAccessFolderOverride
-                webAccessFolderExternalOverride = raw_input('\nRemote (web) address to the same folder\n[default: {}] >> '.format(webAccessFolderExternal))
+                webAccessFolderExternalOverride = raw_input('\nRemote (web) address to the same folder [default: {}] >> '.format(webAccessFolderExternal))
                 webAccessFolderExternal = webAccessFolderExternalOverride or webAccessFolderExternal
             webAccessFolderMsg = '{} --> {}'.format(os.path.join(webAccessFolder, 'scan.html'), os.path.join(webAccessFolderExternal, 'scan.html')) if webAccessFolder else 'disabled'
         elif additionalSettings == '3':
