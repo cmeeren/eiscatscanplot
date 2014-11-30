@@ -1001,7 +1001,7 @@ def scan_parse(dataFolder, savePath,
                             logging.info('   Plotting scan')
                             thisScan.finished = True
                             if (RT or debugRT) and RT_replotAfterScan:
-                                print('Closing realtime scan and replotting')
+                                print('Plotting scan' if thisScan.fig is None else 'Closing realtime scan and replotting')
                                 thisScan.closeFig()
                             if doPlot:
                                 thisScan.plot()
@@ -1070,7 +1070,7 @@ def scan_parse(dataFolder, savePath,
     except KeyboardInterrupt:  # user has pressed Ctrl-C, finalize current scan and quit
         print('Aborting, finalizing current scan...'),
         if (RT or debugRT) and RT_replotAfterScan:
-            print('Closing realtime scan and replotting')
+            print('Plotting scan' if thisScan.fig is None else 'Closing realtime scan and replotting')
             thisScan.finished = True
             thisScan.closeFig()
         if doPlot:
