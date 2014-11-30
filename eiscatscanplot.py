@@ -15,6 +15,7 @@ import shutil
 from os.path import isfile, join
 import re
 import logging
+import pickle
 import datetime as dt
 import numpy as np
 import matplotlib as mpl
@@ -536,14 +537,22 @@ class Scan(object):
                     if timeafterlaunch == 200:
                         ax.annotate(s='CAPER\ntrajectory', xy=(x, y), xycoords='data', xytext=(-50, 0), textcoords='offset points', ha='right', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
 
+            # draw magnetic meridian/parallel through ESR
+            if drawMag:
+                with open('magLatLon.pckl', 'r') as f:
+                    magLatLon = pickle.load(f)
+                for ax in self.axes[0:4]:
+                    self.map.plot(magLatLon[1], magLatLon[0], latlon=True, ax=ax, color='k', linestyle='dotted', linewidth=3, path_effects=[pe.withStroke(foreground='w', linewidth=5)])
+                    self.map.plot(magLatLon[3], magLatLon[2], latlon=True, ax=ax, color='k', linestyle='dotted', linewidth=3, path_effects=[pe.withStroke(foreground='w', linewidth=5)])
+
             # draw inivible coastlines in flat plots
             for ax in self.axes[4:8]:
                 self.map.drawcoastlines(linewidth=0, color="w", zorder=-100, ax=ax)
 
             # small plot "titles"
             for ax in self.axes[4:8]:
-                ax.set_title(u'Flattened to 30\u00B0 elev for mixed az/el scans\n' +
-                             u'(For az-only scans this shows the same as above)')
+                ax.set_title(u'Flattened to 30\u00B0 elev\n' +
+                             u'(useful e.g. for for mixed az/el scans)')
 
         # get coordinates of things to plot
         vertexLats, vertexLons, vertexLats_flat, vertexLons_flat, vertexX_elev, vertexY_elev = self._vertex_array(self.plotAlts, radarLoc)
@@ -552,7 +561,7 @@ class Scan(object):
         #          data   clims          ticks                           colormap       logarithmic colormap
 #        toPlot = [('Ne',  (0, 1e12),     MultipleLocator(base=2e11),     'jet',         False),
         toPlot = [('Ne',  (1e10, 1e12),  LogLocator(subs=range(1, 10)),  'nipy_spectral_pinktop',         True),
-                  ('Vi',  (-500, 500),   [-500, -250, 0, 250, 500],      'coolwarm',  False),
+                  ('Vi',  (-500, 500),   [-500, -250, 0, 250, 500],      'RdBu_r',  False),
                   ('Te',  (0, 4000),     [0, 500, 1000, 1500, 2000, 2500, 3000, 3500, 4000],    'nipy_spectral_pinktop',         False),
                   ('Ti',  (0, 3000),     [0, 500, 1000, 1500, 2000, 2500, 3000],          'nipy_spectral_pinktop',         False)]
 
@@ -638,9 +647,13 @@ class Scan(object):
 
         self.elScanDirectionPlotted = True
 
+        # toward/away on velocity cbar
+        self.cbarAxis[1].text(0, 1.03, 'away', ha='left', va='bottom', transform=self.cbarAxis[1].transAxes)
+        self.cbarAxis[1].text(0, -0.03, 'toward', ha='left', va='top', transform=self.cbarAxis[1].transAxes)
+
         # big plot titles
         self.axes[0].set_title(u'Electron density [m$\mathregular{^{−3}}$]')
-        self.axes[1].set_title('Ion velocity [m/s, red = away from radar]')
+        self.axes[1].set_title('Ion velocity [m/s]')
         self.axes[2].set_title('Electron temperature [K]')
         self.axes[3].set_title('Ion temperature [K]')
 
@@ -845,7 +858,7 @@ def fix_dimensions(par2D, new_par2D, err2D, new_err2D):
 
 def scan_parse(dataFolder, savePath,
                doPlot=False, onlyDoScanNo=None, startAt=None, removeLargeErrs=False, RT=False, RT_replotAfterScan=True,
-               scanWidth=120, defScanSpeedPerIP=0.62*3, alts=None, radarLoc=None, mapWidth=1.8e6, figSize=72,
+               scanWidth=120, defScanSpeedPerIP=0.62*3, alts=None, drawMag=False, radarLoc=None, mapWidth=1.8e6, figSize=72,
                debugRT=False, webAccessFolder='', webAccessFolderExternal=''):
     '''docstring'''
 
@@ -1015,7 +1028,7 @@ def scan_parse(dataFolder, savePath,
                             logging.info('   Plotting scan')
                             thisScan.finished = True
                             if (RT or debugRT) and RT_replotAfterScan:
-                                print('Closing realtime scan and replotting')
+                                print('Plotting scan' if thisScan.fig is None else 'Closing realtime scan and replotting')
                                 thisScan.closeFig()
                             if doPlot:
                                 thisScan.plot()
@@ -1084,7 +1097,7 @@ def scan_parse(dataFolder, savePath,
     except KeyboardInterrupt:  # user has pressed Ctrl-C, finalize current scan and quit
         print('Aborting, finalizing current scan...'),
         if (RT or debugRT) and RT_replotAfterScan:
-            print('Closing realtime scan and replotting')
+            print('Plotting scan' if thisScan.fig is None else 'Closing realtime scan and replotting')
             thisScan.finished = True
             thisScan.closeFig()
         if doPlot:
@@ -1125,7 +1138,9 @@ def make_html(webAccessFolder, webAccessFolderExternal, imageFolder, lastFile):
 
     # read html template code from source file
     with open('rt_src.html', 'r') as f:
-        s = f.read()
+        s1 = f.read()
+    with open('rt_src.html', 'r') as f:
+        s2 = f.read()
 
     # make list of files
     files = [fn for fn in os.listdir(imageFolder) if '.png' in fn]
@@ -1136,15 +1151,25 @@ def make_html(webAccessFolder, webAccessFolderExternal, imageFolder, lastFile):
 
     files_external = [os.path.join(plotFoldersIn_external, os.path.basename(imageFolder), fn) for fn in files]
 
-    # insert file list and update latest image
-    s = s.replace('[!filenames]', 'filenames = ' + str(files_external))
-    s = s.replace('[!latestImg]', files_external[-1])
-    s = s.replace('[!latestImgPermalink]', os.path.join(webAccessFolderExternal, 'ESRlatest.png'))
-    s = s.replace('[!picFolder]', plotFoldersIn_external)
+    # insert file list, latest image and link to image folder
+    s1 = s1.replace('[!filenames]', 'filenames = ' + str(files_external))
+    s1 = s1.replace('[!latestImg]', files_external[-1])
+    s1 = s1.replace('[!latestImgPermalink]', os.path.join(webAccessFolderExternal, 'ESRlatest.png'))
+    s1 = s1.replace('[!picFolder]', plotFoldersIn_external)
+
+    # do the same for the plot folder html file
+    s2 = s2.replace('[!filenames]', 'filenames = ' + str(files))
+    s2 = s2.replace('[!latestImg]', files[-1])
+    s2 = s2.replace('[!latestImgPermalink]', os.path.join(webAccessFolderExternal, 'ESRlatest.png'))
+    s2 = s2.replace('[!picFolder]', plotFoldersIn_external)
 
     # write html page
     with open(os.path.join(webAccessFolder, 'scans.html'), 'w') as f:
-        f.write(s)
+        f.write(s1)
+
+    # write html page
+    with open(os.path.join(plotsIn, '!_SCAN_BROWSER.html'), 'w') as f:
+        f.write(s2)
 
 if __name__ == "__main__":
 
@@ -1190,6 +1215,7 @@ if __name__ == "__main__":
     IPsec = 6.4  # integration period in seconds
     removeLargeErrs = False   # remove data where error > |value|
     alts = []  # altitude lines to plot [km]. Set to empty list [] to disable
+    drawMag = True
 
     # additional settings
     while True:
@@ -1200,8 +1226,9 @@ if __name__ == "__main__":
                                        '   4. Scan speed: {} deg/s\n'.format(scanSpeedDegPerSec) +
                                        '   5. Integration period (GUISDAP): {} s\n'.format(IPsec) +
                                        '   6. Altitude lines: {}\n'.format(' '.join(map(str, alts))) +
-                                       '   7. Remove data where error > |value|: {}\n'.format(removeLargeErrs) +
-                                       '   8. Realtime plotting: {}\n'.format(RT) +
+                                       '   7. Draw magnetic parallel/meridian: {}\n'.format(drawMag) +
+                                       '   8. Remove data where error > |value|: {}\n'.format(removeLargeErrs) +
+                                       '   9. Realtime plotting: {}\n'.format(RT) +
                                        '\nPlease select a number or press Enter to start plotting >> ')
         if not additionalSettings:
             break
@@ -1243,10 +1270,14 @@ if __name__ == "__main__":
             if altsOverride:
                 alts = map(int, altsOverride.split())
         elif additionalSettings == '7':
+            # switch draw magnetic meridian/parallel through ESR
+            drawMag = not drawMag
+            print('Draw magnetic parallel/meridian through ESR turned {}'.format({True: 'ON', False: 'OFF'}[drawMag]))
+        elif additionalSettings == '8':
             # switch error filter
             removeLargeErrs = not removeLargeErrs
             print('Error filter turned {}'.format({True: 'ON', False: 'OFF'}[removeLargeErrs]))
-        elif additionalSettings == '8':
+        elif additionalSettings == '9':
             # switch realtime plotting
             RT = not RT
             print('Realtime turned {}'.format({True: 'ON', False: 'OFF'}[RT]))
@@ -1259,7 +1290,7 @@ if __name__ == "__main__":
 
     scan_parse(dataFolder=dataFolder, savePath=savePath, doPlot=True, RT=RT,
                onlyDoScanNo=onlyDoScanNo, startAt=startAt, removeLargeErrs=removeLargeErrs, RT_replotAfterScan=RT_replotAfterScan,
-               defScanSpeedPerIP=defScanSpeedPerIP, alts=alts, radarLoc=radarLoc, mapWidth=mapWidth, figSize=figSize,
+               defScanSpeedPerIP=defScanSpeedPerIP, alts=alts, drawMag=drawMag, radarLoc=radarLoc, mapWidth=mapWidth, figSize=figSize,
                debugRT=debugRT, webAccessFolder=webAccessFolder, webAccessFolderExternal=webAccessFolderExternal)
 
     raw_input('\nPlotting finished, figures saved to {}. Press Enter to close >> '.format(savePath))
