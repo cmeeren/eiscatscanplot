@@ -1126,6 +1126,7 @@ def make_html(webAccessFolder, webAccessFolderExternal, imageFolder, lastFile):
 
     # make list of files
     files = [fn for fn in os.listdir(imageFolder) if '.png' in fn]
+    files.sort()
 
     # copy latest file to permanent name
     shutil.copyfile(os.path.join(imageFolder, files[-1]), os.path.join(webAccessFolder, 'ESRlatest.png'))
