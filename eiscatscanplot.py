@@ -760,7 +760,7 @@ class Scan(object):
 
             # make web page for external access
             if webAccessFolder:
-                make_html(webAccessFolder, webAccessFolderExternal, saveTo)
+                make_html(webAccessFolder, webAccessFolderExternal, saveTo, lastFile=fn)
 
         else:
             logging.warn('Scan #{}: No figure to save (perhaps because number of beams in scan is < 3)'.format(self.scNo))
@@ -1085,7 +1085,7 @@ def scan_parse(dataFolder, savePath,
         return allScans
 
 
-def make_html(webAccessFolder, webAccessFolderExternal, imageFolder):
+def make_html(webAccessFolder, webAccessFolderExternal, imageFolder, lastFile):
     '''htmlInternal and htmlExternal point to the same folder, e.g.
           internal: /www_kstdev/display/
           external: http://158.39.70.130/~kstdev/display/
@@ -1097,23 +1097,14 @@ def make_html(webAccessFolder, webAccessFolderExternal, imageFolder):
     # local and remote folders where plots are found
     plotFoldersIn = os.path.join(webAccessFolder, 'eiscatscanplot')
     plotFoldersIn_external = os.path.join(webAccessFolderExternal, 'eiscatscanplot')
+    plotsIn = os.path.join(plotFoldersIn, os.path.basename(imageFolder))
 
     # create plot directory
-    if not os.path.isdir(plotFoldersIn):
-        os.makedirs(plotFoldersIn)
+    if not os.path.isdir(plotsIn):
+        os.makedirs(plotsIn)
 
-    # cleanup - remove broken links
-    for brokenLink in [d for d in os.listdir(plotFoldersIn) if os.path.islink(d) and not os.path.lexists(d)]:
-        os.unlink(d)
-
-    # make link from internal plot folder to html internal folder
-    if not os.path.islink(os.path.join(plotFoldersIn, os.path.basename(imageFolder))):
-        os.symlink(imageFolder, os.path.join(plotFoldersIn, os.path.basename(imageFolder)))
-
-#    # Windows test code instead of the two lines above
-#    if os.path.isdir(os.path.join(plotFoldersIn, os.path.basename(imageFolder))):
-#        shutil.rmtree(os.path.join(plotFoldersIn, os.path.basename(imageFolder)))
-#    shutil.copytree(imageFolder, os.path.join(plotFoldersIn, os.path.basename(imageFolder)))
+    # copy last file
+    shutil.copyfile(os.path.join(imageFolder, lastFile), os.path.join(plotsIn, lastFile))
 
     # read html template code from source file
     with open('rt_src.html', 'r') as f:
