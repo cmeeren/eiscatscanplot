@@ -95,6 +95,7 @@ class Scan(object):
         self.byline = None
         self.elScanDirectionPlotted = False
         self.scDirElev = None
+        self.towardAwayPlotted = False
 
         # data
         self.Time = init_Time
@@ -634,8 +635,10 @@ class Scan(object):
         self.elScanDirectionPlotted = True
 
         # toward/away on velocity cbar
-        self.cbarAxis[1].text(0, 1.03, 'away', ha='left', va='bottom', transform=self.cbarAxis[1].transAxes)
-        self.cbarAxis[1].text(0, -0.03, 'toward', ha='left', va='top', transform=self.cbarAxis[1].transAxes)
+        if not self.towardAwayPlotted:
+            self.cbarAxis[1].text(0, 1.03, 'away', ha='left', va='bottom', transform=self.cbarAxis[1].transAxes)
+            self.cbarAxis[1].text(0, -0.03, 'toward', ha='left', va='top', transform=self.cbarAxis[1].transAxes)
+            self.towardAwayPlotted = True
 
         # big plot titles
         self.axes[0].set_title(u'Electron density [m$\mathregular{^{−3}}$]')
@@ -803,6 +806,7 @@ class Scan(object):
         self.mainTitle = None
         self.byline = None
         self.elScanDirectionPlotted = False
+        self.towardAwayPlotted = False
 
 
 def scan_dir(currentAzim, lastAzim):
