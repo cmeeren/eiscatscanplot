@@ -542,7 +542,8 @@ class Scan(object):
 
             # small plot "titles"
             for ax in self.axes[4:8]:
-                ax.set_title(u'Flattened to 30\u00B0 elev (for mixed az/el scans)')
+                ax.set_title(u'Flattened to 30\u00B0 elev for mixed az/el scans\n' +
+                             u'(For az-only scans this shows the same as above)')
 
         # get coordinates of things to plot
         vertexLats, vertexLons, vertexLats_flat, vertexLons_flat, vertexX_elev, vertexY_elev = self._vertex_array(self.plotAlts, radarLoc)
