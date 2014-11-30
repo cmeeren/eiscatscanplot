@@ -1114,7 +1114,9 @@ def make_html(webAccessFolder, webAccessFolderExternal, imageFolder, lastFile):
     plotsIn = os.path.join(plotFoldersIn, os.path.basename(imageFolder))
 
     # create plot directory
-    if not os.path.isdir(plotsIn):
+    if not os.path.isdir(plotsIn) and os.path.isdir(imageFolder):
+        shutil.copytree(plotsIn, imageFolder)
+    elif not os.path.isdir(plotsIn):
         os.makedirs(plotsIn)
 
     # copy last file
