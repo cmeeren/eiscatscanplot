@@ -10,7 +10,7 @@ For example, say you are doing a "right-angled triangle" scan pattern which scan
 An example plot is given below.
 
 * **Top row:** Scan on map, with altitude lines indicating 250 and 500 km.
-* **Middle row:** Same scan, but projected to 30 degrees elevation and rotated. Useful for mixed azimuth-elevation scans (such as this).
+* **Middle row:** Same scan, but projected to 30 degrees elevation. Useful for mixed azimuth-elevation scans (such as this).
 * **Bottom row:** Altitude vs. ground range, only elevation (0–180°) is taken into account. Useful for elevation-only scans.
 
 ![Example](example.png)
@@ -18,18 +18,20 @@ An example plot is given below.
 Really simple usage
 -------------------
 
-Copy the `.py` and `.html` files to anywhere on your computer, open a terminal, go to the folder and run the script using
+Check the requirements at the bottom of this page to ensure you have what you need. Download or clone this repository, open a terminal, go to the folder and run the script using
 
     python eiscatscanplot.py
 
-The script will auto-detect the latest 32m folder in the ESR data directory if run at the ESR site (but lets you choose another folder if you wish). You may change a few constants at the top of the script to adjust the script behaviour, but this is generally not needed; you will be asked to provide the important stuff when you run the script (and if you're lucky, the defaults work perfectly fine).
+If you're not at the ESR, you'll have to enter a data path. If you're at the ESR, the script will auto-detect the latest 32m data folder (but lets you choose another folder if you wish). After this you will get a chance to change some settings (if you're lucky, the defaults work perfectly fine). The settings are described in full [on this page](https://github.com/cmeeren/eiscatscanplot/wiki).
+
+That's it!
 
 The script will update plots in realtime, and when it detects the end of a scan, it will save the figure and start a new plot.
 
 More advanced usage
 -------------------
 
-You can use the script to parse scans (by passing `savePath=None` and `doPlot=False` as arguments to `scan_parse()`) and overlay them on arbitrary map axes (using `Scan.plot_overlay()`). Here is an example (the `eiscatsanplot` folder containing these scripts is assumed to be on your Python path):
+You can use the script to parse scans without plotting (by passing `savePath=None` and `doPlot=False` as arguments to `scan_parse()`) and overlay them on arbitrary map axes (using `Scan.plot_overlay()`). Here is an example (the `eiscatsanplot` folder containing these scripts is assumed to be on your Python path):
 
 ```python
 # change to a real data folder if you want to run this script
@@ -80,12 +82,12 @@ plt.show()
 ```
 
 FAQs
-====
+----
 
 * **Why are there sometimes white gaps in my scans?**  
-I'm generally stretching the data to make them contiguous, but if there is a gap of more than 2 seconds between the end of one data dump and the start of the next one I'm leaving the gap.
-* **There are huge gaps all over the place, looks like every other data dump is not used!**  
-Not really related to this software, but when analysing the data using GUISDAP, you should try using `analysis_sweep = 'az';` (or `'el'` or `'azel'`) in the “Special” box. This will make GUISDAP ignore changes in azimuth/elevation when integrating, and might fix problems if you analyse with a different integration period than the raw data's integration period.
+If there is a gap of more than 2 seconds between the end of one data dump and the start of the next, that gap is treated as missing data, and the adjacent beams will not appear contiguous.
+* **But there are huge gaps all over the place, looks like every other data dump is not used!**  
+You might have done something wrong in GUISDAP. When analysing the data, try using `analysis_sweep = 'az';` (or `'el'` or `'azel'`) in the “Special” box. This will make GUISDAP ignore changes in azimuth/elevation when integrating, and might fix problems if you analyse with a different integration period than the raw data's integration period.
 
 Requirements
 ------------
