@@ -55,8 +55,6 @@ debugRT = False  # forces update of plot after each file is read
 # End switchboard
 #==============================================================================
 
-IPerrorShown = False
-
 # get most recent 32m data directory
 baseDataDir = '/analysis/results'  # will look for 32m data folders in this directory
 if os.path.isdir(baseDataDir):
@@ -858,6 +856,8 @@ def scan_parse(dataFolder, savePath,
     radarLoc = radarLoc or [78.153, 16.029, 0.438]
     startAt = '1' if onlyDoScanNo else startAt
 
+    IPerrorShown = False
+
     oldfiles = set([])  # already loaded data files
     currentScDir = None   # current scan direction
     lastScDir = None  # last scan direction
@@ -932,7 +932,7 @@ def scan_parse(dataFolder, savePath,
                     if Time_prev is not None and Time[0, 0] < Time_prev[-1, -1] and not IPerrorShown:
                         raw_input('ERROR: Start timestamp of current integration is before end timestamp previous integration. This may happen if the GUISDAP analysis has been re-started using another integration period or start time. Things may not work properly from now. It is recommended that you delete the analysed datafiles and the plotted figures and start anew.\n\nPress Enter to continue >> ')
                         IPerrorShown = True
-                        continue
+                    continue
 
                     # get current azim and scan direction
                     currentAzim = par1D[0, 0]
