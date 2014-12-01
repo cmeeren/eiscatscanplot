@@ -1,1 +1,6 @@
-* text eol=lf
+*.py    text diff=python
+*.html  text diff=html
+*.md    text
+*.pckl  text
+
+*.png   binary
