@@ -82,7 +82,7 @@ plt.show()
 ```
 
 FAQs
-====
+----
 
 * **Why are there sometimes white gaps in my scans?**  
 If there is a gap of more than 2 seconds between the end of one data dump and the start of the next, that gap is treated as missing data, and the adjacent beams will not appear contiguous.
