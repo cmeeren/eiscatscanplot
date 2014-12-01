@@ -1204,7 +1204,7 @@ if __name__ == "__main__":
     scanSpeedDegPerSec = 0.63  # scan speed per second
     IPsec = 6.4  # integration period in seconds
     removeLargeErrs = False   # remove data where error > |value|
-    alts = [250, 500]  # altitude lines to plot [km]. Set to empty list [] to disable
+    alts = [250, 500] if '_tau0_' in dataFolder else [200, 400]  # altitude lines to plot [km]. Set to empty list [] to disable
     drawMag = True
 
     # additional settings
