@@ -653,7 +653,7 @@ class Scan(object):
             self.plot_alts()
 
         # set main title of plot
-        mainTitleStr = u'Scan #{0} ({1})   {2}\u2212{3}'.format(self.scNo, self.scDirElev or self.scDir, self.tStart[0].strftime('%d %b %Y %H:%M:%S'), self.tEnd[-1].strftime('%H:%M:%S'))
+        mainTitleStr = u'Scan #{0} ({1})   {2}\u2212{3} UT'.format(self.scNo, self.scDirElev or self.scDir, self.tStart[0].strftime('%d %b %Y %H:%M:%S'), self.tEnd[-1].strftime('%H:%M:%S'))
         if self.mainTitle is None:
             self.mainTitle = self.fig.text(0.5, 0.98, mainTitleStr, horizontalalignment='center', verticalalignment='top', fontsize='xx-large')
         else:
