@@ -929,9 +929,9 @@ def scan_parse(dataFolder, savePath,
                     Time, par2D, par1D, rpar2D, err2D = load_param_single_simple(join(dataFolder, fn), trueAzEl=True)
 
                     # avoid crashing if a new beam somehow starts before the last beam
-                    if Time_prev is not None and Time[0, 0] < Time_prev[-1, -1]:
-                        if not not IPerrorShown:
-                            raw_input('ERROR: Start timestamp of current integration is before end timestamp previous integration. This may happen if the GUISDAP analysis has been re-started using another integration period or start time. Things may not work properly from now. It is recommended that you delete the analysed datafiles and the plotted figures and start anew.\n\nPress Enter to continue >> ')
+                    if Time_prev is not None and Time[0, 0] < Time_prev[0, 0]:
+                        if not IPerrorShown:
+                            raw_input('ERROR: Start timestamp of current integration is before start timestamp previous integration. This may happen if the GUISDAP analysis has been re-started using another integration period or start time. Things may not work properly from now. It is recommended that you delete the analysed datafiles and the plotted figures and start anew.\n\nPress Enter to continue >> ')
                             IPerrorShown = True
                         continue
 
