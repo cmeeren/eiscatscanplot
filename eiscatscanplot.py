@@ -42,7 +42,7 @@ onlyDoScanNo = None  # the only scan number to plot. Takes precedence over which
 
 # plot-related
 radarLoc = [78.153, 16.029, 0.438]  # latitude, longitude, alt [km] of radar (and center of map)
-mapWidth = 1.8e6  # map width (and height) in map projection coordinates
+mapWidth = 2e6  # map width (and height) in map projection coordinates
 figSize = 60  # DPI of figure (makes EVERYTHING larger/smaller)
 
 # debug
@@ -421,10 +421,11 @@ class Scan(object):
 
             if ax is None:  # plotting by self.plot()
 
-                for _ax in self.axes[0:4]:
-                    self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=2.5, color='w', ax=_ax)[0])
-                    self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=1.5, color='k', ax=_ax)[0])
-                    self.plottedAlts[alt].append(_ax.text(x[0], y[0], s=' ESR scan at ' + str(alt) + '$\,$km ', ha='left', va=vert, path_effects=[pe.withStroke(linewidth=3, foreground='w')]))
+                # ICI-4 CUSTOM: No altitude lines in map plots
+#                for _ax in self.axes[0:4]:
+#                    self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=2.5, color='w', ax=_ax)[0])
+#                    self.plottedAlts[alt].append(mapObj.plot(x, y, linewidth=1.5, color='k', ax=_ax)[0])
+#                    self.plottedAlts[alt].append(_ax.text(x[0], y[0], s=' ESR scan at ' + str(alt) + '$\,$km ', ha='left', va=vert, path_effects=[pe.withStroke(linewidth=3, foreground='w')]))
 
                 for _ax in self.axes[4:8]:
                     if self.scDir not in ['elev incr', 'elev decr']:  # don't plot in flat-projection for elevation scans
@@ -512,8 +513,7 @@ class Scan(object):
 
             gs_main.update(left=0.035, right=0.96, bottom=0.06, top=0.95, wspace=0.1, hspace=0)
 
-            rocket_track = np.loadtxt('/home/kstdev/users/rocket/CAPER/CAPERtrack.txt', skiprows=8)
-#            rocket_track = np.loadtxt('CAPERtrack.txt', skiprows=8)
+            rocket_track = np.loadtxt('ici4LP07PL135EL830AZ340Feb.txt')
 
             # initiate maps
             self.map = Basemap(width=mapWidth,
@@ -528,15 +528,15 @@ class Scan(object):
                 self.map.drawcoastlines(linewidth=0.5, color="k", ax=ax)
 
                 # draw rocket tracks
-                self.map.plot(rocket_track[:, 4], rocket_track[:, 3], latlon=True, ax=ax, color='r', linewidth=2, path_effects=[pe.withStroke(foreground='w', linewidth=4)])
-                for timeafterlaunch in range(0, 1001, 100):
+                self.map.plot(rocket_track[:, 3], rocket_track[:, 2], latlon=True, ax=ax, color='r', linewidth=2, path_effects=[pe.withStroke(foreground='w', linewidth=4)])
+                for timeafterlaunch in range(0, 600, 100):
                     row = rocket_track[rocket_track[:, 0] == timeafterlaunch, :]
                     row = row.flatten()
-                    x, y = self.map(row[4], row[3])
+                    x, y = self.map(row[3], row[2])
                     self.map.plot(x, y, 'r.', ax=ax, markersize=15)
                     ax.annotate(s=str(int(row[0])), xy=(x, y), xycoords='data', xytext=(-8, 0), textcoords='offset points', ha='right', va='center', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
                     if timeafterlaunch == 200:
-                        ax.annotate(s='CAPER\ntrajectory', xy=(x, y), xycoords='data', xytext=(-50, 0), textcoords='offset points', ha='right', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
+                        ax.annotate(s='ICI-4\ntrajectory', xy=(x, y), xycoords='data', xytext=(-50, 0), textcoords='offset points', ha='right', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
 
             # draw magnetic meridian/parallel through ESR
             if drawMag:
@@ -1222,7 +1222,7 @@ if __name__ == "__main__":
     scanSpeedDegPerSec = 0.63  # scan speed per second
     IPsec = 6.4  # integration period in seconds
     removeLargeErrs = False   # remove data where error > |value|
-    alts = []  # altitude lines to plot [km]. Set to empty list [] to disable
+    alts = [250, 500]  # altitude lines to plot [km]. Set to empty list [] to disable
     drawMag = True
 
     # additional settings
