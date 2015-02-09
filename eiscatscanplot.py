@@ -1203,7 +1203,7 @@ if __name__ == "__main__":
     webAccessFolder = '/www_kstdev/display/'
     webAccessFolderExternal = 'http://158.39.70.130/~kstdev/display/'
 #    webAccessFolderExternal = 'file:///C:/www_kstdev/display/'
-    webAccessFolderMsg = '{} --> {}'.format(os.path.join(webAccessFolder, 'scan.html'), os.path.join(webAccessFolderExternal, 'scan.html')) if webAccessFolder else 'disabled'
+    webAccessFolderMsg = '{} --> {}'.format(os.path.join(webAccessFolder, 'scans.html'), os.path.join(webAccessFolderExternal, 'scans.html')) if webAccessFolder else 'disabled'
 
     # guess which scan to start at
     startAt = '1'
@@ -1252,7 +1252,7 @@ if __name__ == "__main__":
                 latestImagePath = webAccessFolderOverride
                 webAccessFolderExternalOverride = raw_input('\nRemote (web) address to the same folder [default: {}] >> '.format(webAccessFolderExternal))
                 webAccessFolderExternal = webAccessFolderExternalOverride or webAccessFolderExternal
-            webAccessFolderMsg = '{} --> {}'.format(os.path.join(webAccessFolder, 'scan.html'), os.path.join(webAccessFolderExternal, 'scan.html')) if webAccessFolder else 'disabled'
+            webAccessFolderMsg = '{} --> {}'.format(os.path.join(webAccessFolder, 'scans.html'), os.path.join(webAccessFolderExternal, 'scans.html')) if webAccessFolder else 'disabled'
         elif additionalSettings == '3':
             # start scan no. or start time
             startAtOverride = raw_input('\nEnter scan number or HH:MM from which to start [default: scan no. {}{}] >> '.format(startAt, startAtMsg))
