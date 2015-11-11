@@ -481,7 +481,7 @@ class Scan(object):
                 except AttributeError:  # Probably a Text object
                     pass
 
-    def plot(self):
+    def plot(self, drawMag=False, removeLargeErrs=False):
 
         # for some reason, plotting only two beams doesn't work...
         if len(self.Az) < 3:
