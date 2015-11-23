@@ -19,6 +19,7 @@ import pickle
 import datetime as dt
 import numpy as np
 import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import patheffects as pe
 from matplotlib.ticker import LogLocator, MultipleLocator
