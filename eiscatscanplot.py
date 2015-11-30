@@ -646,6 +646,15 @@ class Scan(object):
         self.axes[2].set_title('Electron temperature [K]')
         self.axes[3].set_title('Ion temperature [K]')
 
+        for ax in [self.axes[0], self.axes[4], self.axes[8]]:
+            ax.text(0, 1, 'Ne', transform=ax.transAxes, ha='left', va='bottom', fontweight='bold')
+        for ax in [self.axes[1], self.axes[5], self.axes[9]]:
+            ax.text(0, 1, 'Vi', transform=ax.transAxes, ha='left', va='bottom', fontweight='bold')
+        for ax in [self.axes[2], self.axes[6], self.axes[10]]:
+            ax.text(0, 1, 'Te', transform=ax.transAxes, ha='left', va='bottom', fontweight='bold')
+        for ax in [self.axes[3], self.axes[7], self.axes[11]]:
+            ax.text(0, 1, 'Ti', transform=ax.transAxes, ha='left', va='bottom', fontweight='bold')
+
         # plot altitude levels
         if self.plottedAlts:
             self.update_alts()
