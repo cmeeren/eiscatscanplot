@@ -482,7 +482,7 @@ class Scan(object):
                 except AttributeError:  # Probably a Text object
                     pass
 
-    def plot(self):
+    def plot(self, drawMag=False, removeLargeErrs=False):
 
         # for some reason, plotting only two beams doesn't work...
         if len(self.Az) < 3:
@@ -673,6 +673,15 @@ class Scan(object):
         self.axes[1].set_title('Ion velocity [m/s]')
         self.axes[2].set_title('Electron temperature [K]')
         self.axes[3].set_title('Ion temperature [K]')
+
+        for ax in [self.axes[0], self.axes[4], self.axes[8]]:
+            ax.text(0, 1, 'Ne', transform=ax.transAxes, ha='left', va='bottom', fontweight='bold')
+        for ax in [self.axes[1], self.axes[5], self.axes[9]]:
+            ax.text(0, 1, 'Vi', transform=ax.transAxes, ha='left', va='bottom', fontweight='bold')
+        for ax in [self.axes[2], self.axes[6], self.axes[10]]:
+            ax.text(0, 1, 'Te', transform=ax.transAxes, ha='left', va='bottom', fontweight='bold')
+        for ax in [self.axes[3], self.axes[7], self.axes[11]]:
+            ax.text(0, 1, 'Ti', transform=ax.transAxes, ha='left', va='bottom', fontweight='bold')
 
         # plot altitude levels
         if self.plottedAlts:
@@ -1217,7 +1226,7 @@ if __name__ == "__main__":
     webAccessFolder = '/www_kstdev/display/'
     webAccessFolderExternal = 'http://158.39.70.130/~kstdev/display/'
 #    webAccessFolderExternal = 'file:///C:/www_kstdev/display/'
-    webAccessFolderMsg = '{} --> {}'.format(os.path.join(webAccessFolder, 'scan.html'), os.path.join(webAccessFolderExternal, 'scan.html')) if webAccessFolder else 'disabled'
+    webAccessFolderMsg = '{} --> {}'.format(os.path.join(webAccessFolder, 'scans.html'), os.path.join(webAccessFolderExternal, 'scans.html')) if webAccessFolder else 'disabled'
 
     # guess which scan to start at
     startAt = '1'
@@ -1266,7 +1275,7 @@ if __name__ == "__main__":
                 latestImagePath = webAccessFolderOverride
                 webAccessFolderExternalOverride = raw_input('\nRemote (web) address to the same folder [default: {}] >> '.format(webAccessFolderExternal))
                 webAccessFolderExternal = webAccessFolderExternalOverride or webAccessFolderExternal
-            webAccessFolderMsg = '{} --> {}'.format(os.path.join(webAccessFolder, 'scan.html'), os.path.join(webAccessFolderExternal, 'scan.html')) if webAccessFolder else 'disabled'
+            webAccessFolderMsg = '{} --> {}'.format(os.path.join(webAccessFolder, 'scans.html'), os.path.join(webAccessFolderExternal, 'scans.html')) if webAccessFolder else 'disabled'
         elif additionalSettings == '3':
             # start scan no. or start time
             startAtOverride = raw_input('\nEnter scan number or HH:MM from which to start [default: scan no. {}{}] >> '.format(startAt, startAtMsg))

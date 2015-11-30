@@ -160,8 +160,8 @@ plt.register_cmap(name='esrJet2', data=esrJet2)
 def load_param_single_simple(fn, status=[0, np.inf], trueAzEl=False):
     """
     Loads parameters from a single GUISDAP result file. NOT meant to be a
-    replacement for GUISDAPs own load_param.m. Loads physical parameters and
-    time, az/el etc. and little else from monostatic experiments.
+    complete replacement for GUISDAPs own load_param.m. Loads physical
+    parameters and time, az/el etc. and little else from monostatic experiments.
 
     Parameters
     ----------
@@ -259,8 +259,8 @@ def load_param_single_simple(fn, status=[0, np.inf], trueAzEl=False):
 def load_param_simple(path, trueAzEl=False):
     """
     Loads parameters from a directory of GUISDAP result files. NOT meant to be
-    a replacement for GUISDAPs own load_param.m. Loads physical parameters and
-    time, az/el etc. and little else from monostatic experiments.
+    a complete replacement for GUISDAPs own load_param.m. Loads physical
+    parameters and time, az/el etc. and little else from monostatic experiments.
 
     Parameters
     ----------
@@ -270,6 +270,24 @@ def load_param_simple(path, trueAzEl=False):
 
     trueAzEl : boolean
         If False, azimuth and elevation will be cast into 0-360 and 0-90 degrees
+
+    Returns
+    -------
+
+    * `N` is number of integrations (i.e., number of files read)
+    * `M` is number of range gates
+
+    Time : 2D array (2, `N`)
+        First index is start timestamp (0) and end timestamp (1) of integration.
+    par2D : 3D array (`M`, `N`, 9)
+        Third index is parameter: Range (0), Altitude (1), Ne (2), Te (3),
+        Ti (4), Vi (5), Coll (6), Comp (7), Res (8)
+    par1D : 2D array (5, `N`)
+        First index is parameter: Az (0), El (1), Pt (2), Tsys (3), Oppd/Php (4)
+    rpar2D : Empty array (not implemented)
+        ..
+    err2D : 3D array (`M`, `N`, 5)
+        Errors for the following parameters (third index): Ne (0), Te (1), Ti (2), Vi (3), Coll (4)
 
     """
 
