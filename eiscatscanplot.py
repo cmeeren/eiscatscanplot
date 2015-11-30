@@ -513,7 +513,7 @@ class Scan(object):
 
             gs_main.update(left=0.035, right=0.96, bottom=0.06, top=0.95, wspace=0.1, hspace=0)
 
-            rocket_track_1 = np.loadtxt(os.path.join(os.path.dirname(__file__), 'track_CAPER.txt'))
+#            rocket_track_1 = np.loadtxt(os.path.join(os.path.dirname(__file__), 'track_CAPER.txt'))
             rocket_track_2 = np.loadtxt(os.path.join(os.path.dirname(__file__), 'track_RENU.txt'))
 
             # initiate maps
@@ -529,19 +529,19 @@ class Scan(object):
                 self.map.drawcoastlines(linewidth=0.5, color="k", ax=ax)
 
                 # draw rocket tracks
-                self.map.plot(rocket_track_1[:, 2], rocket_track_1[:, 1], latlon=True, ax=ax, color='r', linewidth=2,
-                              path_effects=[pe.withStroke(foreground='w', linewidth=4)])
+#                self.map.plot(rocket_track_1[:, 2], rocket_track_1[:, 1], latlon=True, ax=ax, color='r', linewidth=2,
+#                              path_effects=[pe.withStroke(foreground='w', linewidth=4)])
                 self.map.plot(rocket_track_2[:, 2], rocket_track_2[:, 1], latlon=True, ax=ax, color='b', linewidth=2,
                               path_effects=[pe.withStroke(foreground='w', linewidth=4)])
 
                 # CAPER labels
-                for timeafterlaunch in range(0, 1001, 100):
-                    row = rocket_track_1[rocket_track_1[:, 0] == timeafterlaunch, :].flatten()
-                    x, y = self.map(row[2], row[1])
-                    self.map.plot(x, y, 'r.', ax=ax, markersize=15)
-                    ax.annotate(s=str(int(row[0])), xy=(x, y), xycoords='data', xytext=(-8, 0), textcoords='offset points', ha='right', va='center', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
-                    if timeafterlaunch == 200:
-                        ax.annotate(s='CAPER\ntrajectory', xy=(x, y), xycoords='data', xytext=(-50, 0), textcoords='offset points', ha='right', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
+#                for timeafterlaunch in range(0, 1001, 100):
+#                    row = rocket_track_1[rocket_track_1[:, 0] == timeafterlaunch, :].flatten()
+#                    x, y = self.map(row[2], row[1])
+#                    self.map.plot(x, y, 'r.', ax=ax, markersize=15)
+#                    ax.annotate(s=str(int(row[0])), xy=(x, y), xycoords='data', xytext=(-8, 0), textcoords='offset points', ha='right', va='center', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
+#                    if timeafterlaunch == 200:
+#                        ax.annotate(s='CAPER\ntrajectory', xy=(x, y), xycoords='data', xytext=(-50, 0), textcoords='offset points', ha='right', path_effects=[pe.withStroke(foreground='w', linewidth=3)], color='r')
 
                 # RENU labels
                 for timeafterlaunch in range(0, 801, 100):
